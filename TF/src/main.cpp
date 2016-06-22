@@ -5,15 +5,12 @@
 #include <math.h>
 #include <cmath>
 #include <iostream>
+
 #include <GL/glut.h>
-
 #include "glm.h"
-
-//openal (sound lib)
-#include <AL/alut.h>
-
-//bitmap class to load bitmaps for textures
-#include "bitmap.h"
+#include <AL/alut.h> //openal (sound lib)
+#include "bitmap.h" //bitmap class to load bitmaps for textures
+#include "Camera.h"
 
 #pragma comment(lib, "OpenAL32.lib")
 #pragma comment(lib, "alut.lib")
@@ -31,14 +28,12 @@
 
 using namespace std;
 void mainInit();
-void initSound();
 void initTexture();
 void initModel();
 void initLight();
 void enableFog();
 void createGLUI();
 void mainRender();
-void mainCreateMenu();
 void onMouseButton(int button, int state, int x, int y);
 void onMouseMove(int x, int y);
 void onKeyDown(unsigned char key, int x, int y);
@@ -53,74 +48,36 @@ void updateState();
 void renderFloor();
 void updateCam();
 
-/**
-Screen dimensions
-*/
 int windowWidth = 1000;
 int windowHeight = 600;
-
-/**
-Screen position
-*/
 int windowXPos = 100;
 int windowYPos = 150;
-
 int mainWindowId = 0;
 
-double xOffset = -1.9;
-double yOffset = -1.3;
 int mouseLastX = 0;
 int mouseLastY = 0;
 
-float roty = 0.0f;
+float roty = 90.0f;
 float rotx = 90.0f;
 
+bool spacePressed = false;
 bool rightPressed = false;
 bool leftPressed = false;
-bool upPressed = false;
-bool downPressed = false;
 
-bool spacePressed = false;
+Camera cam;
 
-float speedX = 0.0f;
-float speedY = 0.0f;
-float speedZ = 0.0f;
+// bool camfrentePressed = false;
+// bool cam.trasPressed = false;
+// bool cam.upPressed = false;
+// bool cam.downtPressed = false;
 
-float posX = 0.0f;
-float posY = 0.4f;
-float posZ = 2.0f;
-
-/*
-variavel auxiliar pra dar varia��o na altura do ponto de vista ao andar.
-*/
-float headPosAux = 0.0f;
-
-float maxSpeed = 0.25f;
+float posX = 6.0f;
+float posY = 6.0f;
+float posZ = 6.0f;
 
 float planeSize = 8.0f;
 int xQuads = 40;
 int zQuads = 40;
-
-
-// more sound stuff (position, speed and orientation of the listener)
-ALfloat listenerPos[]={0.0,0.0,4.0};
-ALfloat listenerVel[]={0.0,0.0,0.0};
-ALfloat listenerOri[]={0.0,0.0,1.0,
-						0.0,1.0,0.0};
-
-// now the position and speed of the sound source
-ALfloat source0Pos[]={ -2.0, 0.0, 0.0};
-ALfloat source0Vel[]={ 0.0, 0.0, 0.0};
-
-// buffers for openal stuff
-ALuint  buffer[NUM_BUFFERS];
-ALuint  source[NUM_SOURCES];
-ALuint  environment[NUM_ENVIRONMENTS];
-ALsizei size,freq;
-ALenum  format;
-ALvoid  *data;
-
-
 
 // parte de c�digo extra�do de "texture.c" por Michael Sweet (OpenGL SuperBible)
 // texture buffers and stuff
@@ -134,13 +91,6 @@ GLubyte     temp;            /* Swapping variable */
 GLenum      type;            /* Texture type */
 GLuint      texture;         /* Texture object */
 
-
-bool crouched = false;
-bool running = false;
-bool jumping = false;
-float jumpSpeed = 0.06;
-float gravity = 0.004;
-float posYOffset = 0.2;
 
 float backgrundColor[4] = {0.0f,0.0f,0.0f,1.0f};
 
@@ -256,8 +206,8 @@ void setWindow() {
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(posX,posY + posYOffset + 0.025 * std::abs(sin(headPosAux*PI/180)),posZ,
-		posX + sin(roty*PI/180),posY + posYOffset + 0.025 * std::abs(sin(headPosAux*PI/180)) + cos(rotx*PI/180),posZ -cos(roty*PI/180),
+	gluLookAt(posX,posY,posZ,
+		posX + sin(roty*PI/180),posY + cos(rotx*PI/180),posZ -cos(roty*PI/180),
 		0.0,1.0,0.0);
 }
 
@@ -267,22 +217,14 @@ Atualiza a posi��o e orienta��o da camera
 void updateCam() {
 
 	// Em 1º pessoal
-	gluLookAt(posX,posY + posYOffset + 0.025 * std::abs(sin(headPosAux*PI/180)),posZ,
-		posX + sin(roty*PI/180),posY + posYOffset + 0.025 * std::abs(sin(headPosAux*PI/180)) + cos(rotx*PI/180),posZ -cos(roty*PI/180),
+	gluLookAt(posX,posY,posZ,
+		posX + sin(roty*PI/180),posY + cos(rotx*PI/180),posZ -cos(roty*PI/180),
 		0.0,1.0,0.0);
 
 	// Camera aerea
-	// gluLookAt(4.0,0.0,4.0,
-	// 	posX + sin(roty*PI/180),posY + posYOffset + 0.025 * std::abs(sin(headPosAux*PI/180)) + cos(rotx*PI/180),posZ -cos(roty*PI/180),
+	// gluLookAt(0.0,6.0,6.0,
+	// 	posX + sin(roty*PI/180),posY + cos(rotx*PI/180),posZ -cos(roty*PI/180),
 	// 	0.0,1.0,0.0);
-
-	// atualiza a posi��o do listener e da origen do som, s�o as mesmas da camera, j� que os passos vem de onde o personagem est�
-	listenerPos[0] = posX;
-	listenerPos[1] = posY;
-	listenerPos[2] = posZ;
-	source0Pos[0] = posX;
-	source0Pos[1] = posY;
-	source0Pos[2] = posZ;
 
   GLfloat light_position1[] = {posX, posY, posZ, 1.0 };
   glLightfv(GL_LIGHT0, GL_POSITION, light_position1);
@@ -327,6 +269,8 @@ void mainInit() {
 	initModel();
 	initLight();
   //enableFog();
+
+
 
 	jogador.x=2;
 	jogador.y=2;
@@ -469,63 +413,28 @@ void renderScene() {
 	renderFloor();
 }
 
-void updateState() {
-	if (upPressed || downPressed) {
-		if (running) {
-			speedX = 0.05 * sin(roty*PI/180) * 2;
-			speedZ = -0.05 * cos(roty*PI/180) * 2;
-		} else {
-			speedX = 0.05 * sin(roty*PI/180);
-			speedZ = -0.05 * cos(roty*PI/180);
-		}
-		// efeito de "sobe e desce" ao andar
-		headPosAux += 8.5f;
-		if (headPosAux > 180.0f) {
-			headPosAux = 0.0f;
-		}
-    if (upPressed) {
-
-				jogador.posx += 0.01;
-
+void controleCamera(){
+	float speedBase = 0.05;
+	if (cam.frentePressed || cam.trasPressed) {
+		float speedX = +speedBase * sin(roty*PI/180) * 2;
+		float speedZ = -speedBase * cos(roty*PI/180) * 2;
+    if (cam.frentePressed) {
 				posX += speedX;
         posZ += speedZ;
-    } else {
-
-			jogador.posy -= 0.01; 
-
+    } else if(cam.trasPressed) {
 				posX -= speedX;
         posZ -= speedZ;
     }
-	} else {
-		// parou de andar, para com o efeito de "sobe e desce"
-		headPosAux = fmod(headPosAux, 90) - 1 * headPosAux / 90;
-		headPosAux -= 4.0f;
-		if (headPosAux < 0.0f) {
-			headPosAux = 0.0f;
-		}
 	}
-
-	posY += speedY;
-	// if (posY < heightLimit) {
-		// posY = heightLimit;
-		// speedY = 0.0f;
-		// jumping = false;
-	// } else {
-		// speedY -= gravity;
-	// }
-
-	if (crouched) {
-		posYOffset -= 0.01;
-		if (posYOffset < 0.1) {
-			posYOffset = 0.1;
-		}
-	} else {
-		posYOffset += 0.01;
-		if (posYOffset > 0.2) {
-			posYOffset = 0.2;
-		}
+	if(cam.upPressed){
+		posY += speedBase;
+	} else if(cam.downtPressed) {
+		posY -= speedBase;
 	}
+}
 
+void updateState() {
+	controleCamera();
 }
 
 /**
@@ -536,29 +445,7 @@ void mainRender() {
 	renderScene();
 	glFlush();
 	glutPostRedisplay();
-	usleep(1000);
-}
-
-/**
-Handles events from the mouse right button menu
-*/
-void mainHandleMouseRightButtonMenuEvent(int option) {
-	switch (option) {
-		case 1 :
-			exit(0);
-			break;
-		default:
-			break;
-	}
-}
-
-/**
-Create mouse button menu
-*/
-void mainCreateMenu() {
-	glutCreateMenu(mainHandleMouseRightButtonMenuEvent);
-	glutAddMenuEntry("Quit", 1);
-	glutAttachMenu(GLUT_RIGHT_BUTTON);
+	usleep(100);
 }
 
 /**
@@ -606,23 +493,15 @@ void onMousePassiveMove(int x, int y) {
 Key press event handler
 */
 void onKeyDown(unsigned char key, int x, int y) {
-	//printf("%d \n", key);
 	switch (key) {
-		case 32: //space
-			if (!spacePressed && !jumping) {
-				jumping = true;
-				speedY = jumpSpeed;
-			}
-			spacePressed = true;
-		break;
-		case 'w': upPressed = true; break;
-		case 's': downPressed = true; break;
+		case 32: spacePressed = true; break;
+		case 'o': cam.frentePressed = true; break;
+		case 'l': cam.trasPressed = true; break;
+		case 'i': cam.upPressed = true; break;
+		case 'p': cam.downtPressed = true; break;
 		case 'a': leftPressed = true; break;
 		case 'd': rightPressed = true; break;
-		case 'c': crouched = true; break;
-		case 'r': running = true; break;
-		default:
-			break;
+		default: break;
 	}
 	//glutPostRedisplay();
 }
@@ -632,34 +511,16 @@ Key release event handler
 */
 void onKeyUp(unsigned char key, int x, int y) {
 	switch (key) {
-		case 32: //space
-			spacePressed = false;
-			break;
-		case 119: //w
-			upPressed = false;
-			break;
-		case 115: //s
-			downPressed = false;
-			break;
-		case 97: //a
-			leftPressed = false;
-			break;
-		case 100: //d
-			rightPressed = false;
-			break;
-		case 99: //c
-			crouched = false;
-			break;
-		case 114: //r
-			running = false;
-			break;
-		case 27:
-			exit(0);
-			break;
-		default:
-			break;
+		case 32: spacePressed = false; break;
+		case 'o': cam.frentePressed = false;	break;
+		case 'l': cam.trasPressed = false; break;
+		case 'a': leftPressed = false;	break;
+		case 'd': rightPressed = false; break;
+		case 'i': cam.upPressed = false; break;
+		case 'p': cam.downtPressed = false; break;
+		case 27: exit(0); break;
+		default: break;
 	}
-
 	//glutPostRedisplay();
 }
 
@@ -678,7 +539,6 @@ void mainIdle() {
 	Set the active window before send an glutPostRedisplay call
 	so it wont be accidently sent to the glui window
 	*/
-
 	glutSetWindow(mainWindowId);
 	glutPostRedisplay();
 }

@@ -8,11 +8,10 @@ all: src/main.cpp
 	$(PP) -c $(SRC_DIR)/glm.cpp -o $(BIN_DIR)/glm.o
 	$(PP) -c $(SRC_DIR)/glmimg.cpp -o $(BIN_DIR)/glmimg.o
 	$(PP) -c $(SRC_DIR)/Texture.cpp -o $(BIN_DIR)/Texture.o
+	$(PP) -c $(SRC_DIR)/Camera.cpp -o $(BIN_DIR)/Camera.o
 	$(PP) -o main $(SRC_DIR)/main.cpp -lglut -lGLU -lGL -lm $(BIN_DIR)/*.o
 clean:
 	rm -rf ./main $(BIN_DIR)/*.o
 
 exec: src/main.cpp
 	$(PP) -o main $(SRC_DIR)/main.cpp -lglut -lGLU -lGL -lm $(BIN_DIR)/*.o
-
-
