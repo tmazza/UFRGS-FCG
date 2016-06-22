@@ -12,4 +12,7 @@ all: src/main.cpp
 clean:
 	rm -rf ./main $(BIN_DIR)/*.o
 
+exec: src/main.cpp
+	$(PP) -o main $(SRC_DIR)/main.cpp -lglut -lGLU -lGL -lm $(BIN_DIR)/*.o
+
 
