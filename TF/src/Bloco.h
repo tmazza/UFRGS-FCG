@@ -1,6 +1,10 @@
+#ifndef BLOCO_HEADER
+#define BLOCO_HEADER
+
 class Bloco {
 public:
   Bloco();
+  char tipo;
   int x,y;
   float posx,posy,posz;
   float gravidade;
@@ -11,10 +15,8 @@ public:
   void verificaQueda();
 
   void render();
-  void instanciar(int x, int y, float posVertical, void *modelo);
+  void instanciar(char tipo,int x, int y, float posVertical, void *modelo);
   void resetPosicao(int x, int y, float posVertical);
-
-
-
-
 };
+
+#endif

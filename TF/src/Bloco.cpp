@@ -3,6 +3,15 @@
 #include <GL/glut.h>
 #include "glm.h"
 
+/**
+ * Tipos possiveis | representacao no bitmap em (TGB)
+ * J: jogador | 001
+ * V: vazio | 011
+ * I: inimigo | 100
+ * P: parede (ou bloco conforme especificação) | 010
+ * B: buraco | 110
+ * R: rachadura | 101
+ */
 Bloco::Bloco(){
   this->emQueda = false;
   this->inicializado = false;
@@ -11,7 +20,7 @@ Bloco::Bloco(){
 }
 
 void Bloco::render(){
-  if(this->visivel){
+  if(this->tipo != 'V' && this->visivel){
     glPushMatrix();
     glTranslatef(this->posx,this->posy,this->posz);
     glmDraw((GLMmodel *) this->modelo, GLM_SMOOTH);
@@ -41,8 +50,9 @@ void Bloco::verificaQueda(){
  * Cria bloco na posicao esperada. Realiza operação somente uma vez,
  * quando o objeto ainda nao esta inicializado
  */
-void Bloco::instanciar(int x, int y, float posVertical, void *modelo){
+void Bloco::instanciar(char tipo,int x, int y, float posVertical, void *modelo){
   if(!this->inicializado){
+    this->tipo = tipo;
     this->modelo = (GLMmodel *) modelo;
     this->resetPosicao(x,y,posVertical);
     this->inicializado = true;

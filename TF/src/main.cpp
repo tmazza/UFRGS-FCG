@@ -10,6 +10,7 @@
 #include "bitmap.h" //bitmap class to load bitmaps for textures
 #include "Camera.h"
 #include "Bloco.h"
+#include "Jogador.h"
 
 #pragma comment(lib, "OpenAL32.lib")
 #pragma comment(lib, "alut.lib")
@@ -54,13 +55,8 @@ int mainWindowId = 0;
 int mouseLastX = 0;
 int mouseLastY = 0;
 
-bool spacePressed = false;
-bool rightPressed = false;
-bool leftPressed = false;
-
 bool emTeste = false;
 
-Camera cam;
 
 float planeSize = 100.0f;
 int xQuads = 40;
@@ -72,8 +68,11 @@ GLMmodel *modelOutro1;
 GLMmodel *modelOutro2;
 GLMmodel *modelCube;
 
+Camera cam;
 Bloco nivel1[20][20];
 Bloco nivel2[20][20];
+Jogador *jog;
+
 
 void addObjetosNivel(int nivel){
 	char filename[14] = "res/teste.bmp";
@@ -97,31 +96,39 @@ void addObjetosNivel(int nivel){
 	unsigned char* data = new unsigned char[row_padded];
 	unsigned char tmp;
 	int idx;
+	bool cR,cG,cB;
 	for(int i = height-1; i >= 0; i--) {
 			fread(data, sizeof(unsigned char), row_padded, f);
 			for(int j = 0; j < width*3; j += 3) {
 					idx = j/3;
-					tmp = data[j]; data[j] = data[j+2];  data[j+2] = tmp;
+					tmp = data[j]; data[j] = data[j+2]; data[j+2] = tmp;
+					cR = (int)data[j] == 255;
+					cG = (int)data[j+1] == 255;
+					cB = (int)data[j+2] == 255;
 					if(nivel == 1){
-							nivel1[i][idx].instanciar(i, j/3, yBase,(GLMmodel *) modelCube);
+							nivel1[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelCube);
 							nivel1[i][idx].render();
 					} else {
-					 if((int)data[j] == 255){ // Se R != 0
-	 					     glPushMatrix();
-	 					     glTranslatef(i*0.4-4.0,yBase,idx*0.4-4.0);
-	 					     glmDraw(modelCube, GLM_SMOOTH );
-	 					     glPopMatrix();
-						} else if((int)data[j+1] == 255) { // Se G != 0
-						     glPushMatrix();
-						     glTranslatef(i*0.4-4.0,yBase,idx*0.4-4.0);
-						     glmDraw(modelOutro1, GLM_SMOOTH | GLM_MATERIAL );
-						     glPopMatrix();
-						} else if((int)data[j+2] == 255) { // Se B != 0
-						     glPushMatrix();
-						     glTranslatef(i*0.4-4.0,yBase,idx*0.4-4.0);
-						     glmDraw(modelOutro2, GLM_SMOOTH | GLM_MATERIAL );
-						     glPopMatrix();
+
+					/** J: 001 | jogador
+						* I: 100 | inimigo
+						* P: 010 | parede (ou bloco conforme especificação)
+						* B: 110 | buraco
+						* R: 101 | rachadura
+						* V: ??? | vazio */
+						if(!cR && !cG && cB)
+						{
+							 nivel2[i][idx].instanciar('J',i, j/3, yBase,(GLMmodel *) modelCube);
+							 jog = (Jogador*) &nivel2[i][idx];
 						}
+						else if( cR && !cG && !cB) nivel2[i][idx].instanciar('I',i, j/3, yBase,(GLMmodel *) modelCube);
+						else if(!cR &&  cG && !cB) nivel2[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelCube);
+						else if( cR &&  cG && !cB) nivel2[i][idx].instanciar('B',i, j/3, yBase,(GLMmodel *) modelCube);
+						else if( cR && !cG &&  cB) nivel2[i][idx].instanciar('R',i, j/3, yBase,(GLMmodel *) modelCube);
+						else nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
+
+						nivel2[i][idx].render();
+
 					}
 			}
 	}
@@ -291,7 +298,14 @@ void updateState() {
 	}
 
 	if(emTeste){
-		nivel1[0][0].emQueda = true;
+		for(i=0;i<50;i++){
+			nivel1[i/20][i%20].emQueda = true;
+		}
+		printf("JOGO: %d, %d\n",jog->x,jog->y);
+		jog->teste();
+		printf("\n\n");
+
+
 	}
 
 }
@@ -341,13 +355,14 @@ Key press event handler
 */
 void onKeyDown(unsigned char key, int x, int y) {
 	switch (key) {
-		case 32: spacePressed = true; break;
+		// case 32: spacePressed = true; break;
 		case 'o': cam.frentePressed = true; break;
 		case 'l': cam.trasPressed = true; break;
 		case 'i': cam.upPressed = true; break;
 		case 'p': cam.downtPressed = true; break;
-		case 'a': leftPressed = true; break;
-		case 'd': rightPressed = true; break;
+		case 'w': jog->andaPressed = true; break;
+		case 'a': jog->giraEsqPressed = true; break;
+		case 'd': jog->giraDirPressed = true; break;
 
 		case 't': emTeste = true; break;
 
@@ -361,16 +376,16 @@ Key release event handler
 */
 void onKeyUp(unsigned char key, int x, int y) {
 	switch (key) {
-		case 32: spacePressed = false; break;
+		// case 32: spacePressed = false; break;
 		case 'o': cam.frentePressed = false;	break;
 		case 'l': cam.trasPressed = false; break;
-		case 'a': leftPressed = false;	break;
-		case 'd': rightPressed = false; break;
 		case 'i': cam.upPressed = false; break;
 		case 'p': cam.downtPressed = false; break;
+		case 'w': jog->andaPressed = true; break;
+		case 'a': jog->giraEsqPressed = true; break;
+		case 'd': jog->giraDirPressed = true; break;
 		case 27: exit(0); break;
-
-
+		
 		case 't': emTeste = false; break;
 
 		default: break;
