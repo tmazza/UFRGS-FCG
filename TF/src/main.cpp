@@ -67,6 +67,7 @@ GLMmodel *modelOutro1;
 GLMmodel *modelOutro2;
 GLMmodel *modelCube;
 
+int count;
 Camera cam;
 Bloco nivel1[20][20];
 Bloco nivel2[20][20];
@@ -95,6 +96,7 @@ void addObjetosNivel(int nivel){
 	unsigned char tmp;
 	int idx;
 	bool cR,cG,cB;
+	count = 0;
 	for(int i = height-1; i >= 0; i--) {
 			fread(data, sizeof(unsigned char), row_padded, f);
 			for(int j = 0; j < width*3; j += 3) {
@@ -126,9 +128,10 @@ void addObjetosNivel(int nivel){
 						else if( cR && !cG &&  cB) nivel2[i][idx].instanciar('R',i, j/3, yBase,(GLMmodel *) modelSphere);
 						else nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
 
+						nivel2[i][idx].id = count;
 						nivel2[i][idx].render();
-
 					}
+					count++;
 			}
 	}
 	fclose(f);
@@ -297,7 +300,7 @@ void updateState() {
 		nivel2[x][y].update();
 
 	  if(nivel2[x][y].tipo == 'J'){ // Movimentação do jogador
-	    nivel2[x][y].verificaJogador(nivel1);
+	    nivel2[x][y].verificaJogador(nivel2);
 		}
 
 		if(nivel2[x][y].tipo != 'V' && !nivel1[nivel2[x][y].x][nivel2[x][y].y].ativo) // Verifica se elemento de nivel 2 está

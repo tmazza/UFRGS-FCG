@@ -62,7 +62,7 @@ void Bloco::verificaQueda(){
 /**
  * Controle movimentos e interações do jogados
  */
-void Bloco::verificaJogador(Bloco vizinhos[20][20]){
+void Bloco::verificaJogador(Bloco vizinho[20][20]){
   float novoX = this->posx,novoZ = this->posz;
   if(this->andaPressed){
     if(this->direcao == 0) novoZ += 0.01f;
@@ -75,7 +75,7 @@ void Bloco::verificaJogador(Bloco vizinhos[20][20]){
     if(this->direcao == 2) novoZ += 0.01f;
     if(this->direcao == 3) novoX -= 0.01f;
   }
-  if(isPontoValido(novoX,novoZ,vizinhos)){
+  if(jogadorTemColisao(novoX,novoZ,vizinho)){
     this->posx = novoX;
     this->posz = novoZ;
   }
@@ -92,9 +92,27 @@ void Bloco::verificaJogador(Bloco vizinhos[20][20]){
   // printf("%f - %f \n",this->posx,this->posz);
 }
 
-bool Bloco::isPontoValido(float x,float z,Bloco vizinhos[20][20]){
+bool Bloco::jogadorTemColisao(float x,float z,Bloco v[20][20]){
+  int i,j;
+  for(i=0;i<20;i++){
+    for(j=0;j<20;j++){
+      if(v[i][j].id != this->id && (v[i][j].tipo == 'P' || v[i][j].tipo == 'I')){
+        if(v[i][j].pontoDentro(x,z))
+          return false;
+//        printf("V:%d - %c - %d\n",v[i][j].id,v[i][j].tipo,v[i][j].pontoDentro(x,z));
+      }
+    }
+  }
   return true;
 }
+
+/**
+ * Verifica se ponto (x,z) está dentro de quadrado de lado 0.8
+ */
+bool Bloco::pontoDentro(float x,float z){
+  return x < this->posx+0.38 && x > this->posx-0.38 && z < this->posz+0.38 && z > this->posz-0.38;
+}
+
 /**
  * Verifica se jogador esta fora da região do mapa ou sob uma região vazia
  */
@@ -135,13 +153,6 @@ bool Bloco::setLock(float t){
   this->lock = t;
   if(this->lock < 0.0f)
     this->lock = 0.0f;
-}
-
-/**
- * Verifica se ponto (x,z) está dentro de quadrado de lado 0.8
- */
-bool Bloco::pontoDentro(float x,float z){
-  return x < this->posx+0.4 && x > this->posx-0.4 && z < this->posz+0.4 && z > this->posz-0.4;
 }
 
 /**

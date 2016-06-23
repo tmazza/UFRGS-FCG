@@ -4,6 +4,7 @@
 class Bloco {
 public:
   Bloco();
+  int id;
   char tipo;
   int x,y;
   float posx,posy,posz;
@@ -16,13 +17,13 @@ public:
 
   void update();
   void verificaQueda();
-  void verificaJogador(Bloco vizinhos[20][20]);
+  void verificaJogador(Bloco vizinho[20][20]);
   void controleDeQueda();
   void giraParaEsquerda();
   void giraParaDireita();
   bool isLock();
   bool setLock(float t);
-  bool isPontoValido(float x,float z,Bloco vizinhos[20][20]);
+  bool jogadorTemColisao(float x,float z,Bloco v[20][20]);
   bool pontoDentro(float x,float z);
 
   void render();
