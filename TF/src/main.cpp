@@ -5,12 +5,11 @@
 #include <math.h>
 #include <cmath>
 #include <iostream>
-
 #include <GL/glut.h>
 #include "glm.h"
-#include <AL/alut.h> //openal (sound lib)
 #include "bitmap.h" //bitmap class to load bitmaps for textures
 #include "Camera.h"
+#include "Bloco.h"
 
 #pragma comment(lib, "OpenAL32.lib")
 #pragma comment(lib, "alut.lib")
@@ -28,10 +27,8 @@
 
 using namespace std;
 void mainInit();
-void initTexture();
 void initModel();
 void initLight();
-void enableFog();
 void createGLUI();
 void mainRender();
 void onMouseButton(int button, int state, int x, int y);
@@ -57,41 +54,17 @@ int mainWindowId = 0;
 int mouseLastX = 0;
 int mouseLastY = 0;
 
-float roty = 90.0f;
-float rotx = 90.0f;
-
 bool spacePressed = false;
 bool rightPressed = false;
 bool leftPressed = false;
 
+bool emTeste = false;
+
 Camera cam;
 
-// bool camfrentePressed = false;
-// bool cam.trasPressed = false;
-// bool cam.upPressed = false;
-// bool cam.downtPressed = false;
-
-float posX = 6.0f;
-float posY = 6.0f;
-float posZ = 6.0f;
-
-float planeSize = 8.0f;
+float planeSize = 100.0f;
 int xQuads = 40;
 int zQuads = 40;
-
-// parte de c�digo extra�do de "texture.c" por Michael Sweet (OpenGL SuperBible)
-// texture buffers and stuff
-int i;                       /* Looping var */
-BITMAPINFO	*info;           /* Bitmap information */
-GLubyte	    *bits;           /* Bitmap RGB pixels */
-GLubyte     *ptr;            /* Pointer into bit buffer */
-GLubyte	    *rgba;           /* RGBA pixel buffer */
-GLubyte	    *rgbaptr;        /* Pointer into RGBA buffer */
-GLubyte     temp;            /* Swapping variable */
-GLenum      type;            /* Texture type */
-GLuint      texture;         /* Texture object */
-
-
 float backgrundColor[4] = {0.0f,0.0f,0.0f,1.0f};
 
 GLMmodel *modelSphere;
@@ -99,13 +72,8 @@ GLMmodel *modelOutro1;
 GLMmodel *modelOutro2;
 GLMmodel *modelCube;
 
-struct entity {
-	int x,y;
-	float posx,posy;
-};
-typedef struct entity ENTITY;
-
-ENTITY jogador;
+Bloco nivel1[20][20];
+Bloco nivel2[20][20];
 
 void addObjetosNivel(int nivel){
 	char filename[14] = "res/teste.bmp";
@@ -128,35 +96,33 @@ void addObjetosNivel(int nivel){
 	int row_padded = (width*3 + 3) & (~3);
 	unsigned char* data = new unsigned char[row_padded];
 	unsigned char tmp;
-
+	int idx;
 	for(int i = height-1; i >= 0; i--) {
 			fread(data, sizeof(unsigned char), row_padded, f);
 			for(int j = 0; j < width*3; j += 3) {
+					idx = j/3;
 					tmp = data[j]; data[j] = data[j+2];  data[j+2] = tmp;
 					if(nivel == 1){
-							glPushMatrix();
-							glTranslatef(i*0.4-4.0,yBase,(j/3)*0.4-4.0);
-							glmDraw(modelCube, GLM_SMOOTH  );
-							glPopMatrix();
+							nivel1[i][idx].instanciar(i, j/3, yBase,(GLMmodel *) modelCube);
+							nivel1[i][idx].render();
 					} else {
-
 					 if((int)data[j] == 255){ // Se R != 0
- 					     glPushMatrix();
- 					     glTranslatef(i*0.4-4.0,yBase,(j/3)*0.4-4.0);
- 					     glmDraw(modelCube, GLM_SMOOTH );
- 					     glPopMatrix();
-					} else if((int)data[j+1] == 255) { // Se G != 0
-					     glPushMatrix();
-					     glTranslatef(i*0.4-4.0,yBase,(j/3)*0.4-4.0);
-					     glmDraw(modelOutro1, GLM_SMOOTH | GLM_MATERIAL );
-					     glPopMatrix();
-					} else if((int)data[j+2] == 255) { // Se B != 0
-					     glPushMatrix();
-					     glTranslatef(i*0.4-4.0,yBase,(j/3)*0.4-4.0);
-					     glmDraw(modelOutro2, GLM_SMOOTH | GLM_MATERIAL );
-					     glPopMatrix();
+	 					     glPushMatrix();
+	 					     glTranslatef(i*0.4-4.0,yBase,idx*0.4-4.0);
+	 					     glmDraw(modelCube, GLM_SMOOTH );
+	 					     glPopMatrix();
+						} else if((int)data[j+1] == 255) { // Se G != 0
+						     glPushMatrix();
+						     glTranslatef(i*0.4-4.0,yBase,idx*0.4-4.0);
+						     glmDraw(modelOutro1, GLM_SMOOTH | GLM_MATERIAL );
+						     glPopMatrix();
+						} else if((int)data[j+2] == 255) { // Se B != 0
+						     glPushMatrix();
+						     glTranslatef(i*0.4-4.0,yBase,idx*0.4-4.0);
+						     glmDraw(modelOutro2, GLM_SMOOTH | GLM_MATERIAL );
+						     glPopMatrix();
+						}
 					}
-				}
 			}
 	}
 	fclose(f);
@@ -166,17 +132,36 @@ void addObjetos() {
 	addObjetosNivel(1);
 	addObjetosNivel(2);
 
-	glPushMatrix();
-	glTranslatef(jogador.posx,0.6,jogador.posy);
-	glmDraw(modelSphere, GLM_SMOOTH | GLM_MATERIAL | GLM_TEXTURE );
-	glPopMatrix();
+	// a.modelo = (GLMmodel *) modelSphere;
+	// a.render();
+	// glPushMatrix();
+	// glTranslatef(jogador.posx,0.6,jogador.posy);
+	// glmDraw(modelSphere, GLM_SMOOTH );
+	// glPopMatrix();
 
 }
 
+void renderFloor() {
+	glPushMatrix();
+    glTranslatef(-(float)planeSize/2.0f, 0.0f, -(float)planeSize/2.0f);
+
+		int xQuads = 40;
+    int zQuads = 40;
+    for (int i = 0; i < xQuads; i++) {
+        for (int j = 0; j < zQuads; j++) {
+            glBegin(GL_QUADS);
+                glVertex3f(i * (float)planeSize/xQuads, 0.0f, (j+1) * (float)planeSize/zQuads);
+                glVertex3f((i+1) * (float)planeSize/xQuads, 0.0f, (j+1) * (float)planeSize/zQuads);
+                glVertex3f((i+1) * (float)planeSize/xQuads, 0.0f, j * (float)planeSize/zQuads);
+								glVertex3f(i * (float)planeSize/xQuads, 0.0f, j * (float)planeSize/zQuads);
+            glEnd();
+        }
+    }
+	glPopMatrix();
+}
 
 // Aux function to load the object using GLM and apply some functions
-bool C3DObject_Load_New(const char *pszFilename, GLMmodel **model)
-{
+bool C3DObject_Load_New(const char *pszFilename, GLMmodel **model) {
 		char aszFilename[256];
     strcpy(aszFilename, pszFilename);
 
@@ -190,7 +175,7 @@ bool C3DObject_Load_New(const char *pszFilename, GLMmodel **model)
     if (!(*model))
     return false;
 
-//		GLfloat sFactor[] = { 0.5, 0.5, 0.5, 1.0 };
+	//		GLfloat sFactor[] = { 0.5, 0.5, 0.5, 1.0 };
     glmUnitize(*model);
   	glmScale(*model,0.195); // USED TO SCALE THE OBJECT
     glmFacetNormals(*model);
@@ -206,8 +191,8 @@ void setWindow() {
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(posX,posY,posZ,
-		posX + sin(roty*PI/180),posY + cos(rotx*PI/180),posZ -cos(roty*PI/180),
+	gluLookAt(cam.x,cam.y,cam.z,
+		cam.x + sin(cam.roty*PI/180),cam.y + cos(cam.rotx*PI/180),cam.z -cos(cam.roty*PI/180),
 		0.0,1.0,0.0);
 }
 
@@ -217,16 +202,16 @@ Atualiza a posi��o e orienta��o da camera
 void updateCam() {
 
 	// Em 1º pessoal
-	gluLookAt(posX,posY,posZ,
-		posX + sin(roty*PI/180),posY + cos(rotx*PI/180),posZ -cos(roty*PI/180),
+	gluLookAt(cam.x,cam.y,cam.z,
+		cam.x + sin(cam.roty*PI/180),cam.y + cos(cam.rotx*PI/180),cam.z -cos(cam.roty*PI/180),
 		0.0,1.0,0.0);
 
 	// Camera aerea
 	// gluLookAt(0.0,6.0,6.0,
-	// 	posX + sin(roty*PI/180),posY + cos(rotx*PI/180),posZ -cos(roty*PI/180),
+	// 	cam.x + sin(cam.roty*PI/180),cam.y + cos(cam.rotx*PI/180),cam.z -cos(cam.roty*PI/180),
 	// 	0.0,1.0,0.0);
 
-  GLfloat light_position1[] = {posX, posY, posZ, 1.0 };
+  GLfloat light_position1[] = {cam.x, cam.y, cam.z, 1.0 };
   glLightfv(GL_LIGHT0, GL_POSITION, light_position1);
 
 
@@ -265,17 +250,8 @@ void mainInit() {
 	// habilita o z-buffer
 	glEnable(GL_DEPTH_TEST);
 
-	initTexture();
 	initModel();
 	initLight();
-  //enableFog();
-
-
-
-	jogador.x=2;
-	jogador.y=2;
-	jogador.posx = jogador.x*0.4-4.0;
-	jogador.posy = jogador.y*0.4-4.0;
 
 	printf("w - andar \n");
 	printf("s - ir pra tras \n");
@@ -295,146 +271,29 @@ void initModel() {
 	printf("Models ok. \n \n \n");
 }
 
-/**
-Initialize the texture using the library bitmap
-*/
-void initTexture(void)
-{
-  printf ("\nLoading texture..\n");
-  // Load a texture object (256x256 true color)
-  bits = LoadDIBitmap("res/tiledbronze.bmp", &info);
-  if (bits == (GLubyte *)0) {
-		printf ("Error loading texture!\n\n");
-		return;
-	}
-  // Figure out the type of texture
-  if (info->bmiHeader.biHeight == 1)
-    type = GL_TEXTURE_1D;
-  else
-    type = GL_TEXTURE_2D;
-
-  // Create and bind a texture object
-  glGenTextures(1, &texture);
-	glBindTexture(type, texture);
-
-  // Create an RGBA image
-  rgba = (GLubyte *)malloc(info->bmiHeader.biWidth * info->bmiHeader.biHeight * 4);
-
-  i = info->bmiHeader.biWidth * info->bmiHeader.biHeight;
-  for( rgbaptr = rgba, ptr = bits;  i > 0; i--, rgbaptr += 4, ptr += 3)
-  {
-          rgbaptr[0] = ptr[2];     // windows BMP = BGR
-          rgbaptr[1] = ptr[1];
-          rgbaptr[2] = ptr[0];
-          rgbaptr[3] = (ptr[0] + ptr[1] + ptr[2]) / 3;
-  }
-
-	// Set texture parameters
-	glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(type, GL_TEXTURE_WRAP_T, GL_CLAMP);
-
-  glTexImage2D(type, 0, 4, info->bmiHeader.biWidth, info->bmiHeader.biHeight,
-                0, GL_RGBA, GL_UNSIGNED_BYTE, rgba );
-
-  printf("Textura %d\n", texture);
-	printf("Textures ok.\n\n");
-
-
-}
-
-void enableFog(void)
-{
-    float fog_colour[4] = {0,0,0,0};
-    glEnable(GL_FOG);
-    glFogf(GL_FOG_MODE,GL_LINEAR);
-    glFogfv(GL_FOG_COLOR,fog_colour);
-    glFogf(GL_FOG_DENSITY,0.1);
-    glFogf(GL_FOG_START,0.1);
-    glFogf(GL_FOG_END,5);
-}
-
-void setQuadAt(int i,int j){
-	glBegin(GL_QUADS);
-			glTexCoord2f(1.0f, 0.0f);   // coords for the texture
-			glNormal3f(0.0f,1.0f,0.0f);
-			glVertex3f(i * (float)planeSize/xQuads, 0.0f, (j+1) * (float)planeSize/zQuads);
-
-			glTexCoord2f(0.0f, 0.0f);  // coords for the texture
-			glNormal3f(0.0f,1.0f,0.0f);
-			glVertex3f((i+1) * (float)planeSize/xQuads, 0.0f, (j+1) * (float)planeSize/zQuads);
-
-			glTexCoord2f(0.0f, 1.0f);  // coords for the texture
-			glNormal3f(0.0f,1.0f,0.0f);
-			glVertex3f((i+1) * (float)planeSize/xQuads, 0.0f, j * (float)planeSize/zQuads);
-
-			glTexCoord2f(1.0f, 1.0f);  // coords for the texture
-			glNormal3f(0.0f,1.0f,0.0f);
-			glVertex3f(i * (float)planeSize/xQuads, 0.0f, j * (float)planeSize/zQuads);
-	glEnd();
-}
-
-void renderFloor() {
-	// set things up to render the floor with the texture
-	glShadeModel(GL_SMOOTH);
-	glEnable(type);
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-	glPushMatrix();
-
-  glTranslatef(-(float)planeSize/2.0f, 0.0f, -(float)planeSize/2.0f);
-
-	float textureScaleX = 10.0;
-	float textureScaleY = 10.0;
-  glColor4f(1.0f,1.0f,1.0f,1.0f);
-
-  for (int i = 0; i < xQuads; i++) {
-      for (int j = 0; j < zQuads; j++) {
-				setQuadAt(i,j);
-      }
-    }
-
-	glDisable(type);
-
-
-	glPopMatrix();
-}
-
 void renderScene() {
-	glClearColor(backgrundColor[0],backgrundColor[1],backgrundColor[2],backgrundColor[3]);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // limpar o depth buffer
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	updateCam();
-	glBindTexture(type, texture);
-	addObjetos();
-	renderFloor();
-}
-
-void controleCamera(){
-	float speedBase = 0.05;
-	if (cam.frentePressed || cam.trasPressed) {
-		float speedX = +speedBase * sin(roty*PI/180) * 2;
-		float speedZ = -speedBase * cos(roty*PI/180) * 2;
-    if (cam.frentePressed) {
-				posX += speedX;
-        posZ += speedZ;
-    } else if(cam.trasPressed) {
-				posX -= speedX;
-        posZ -= speedZ;
-    }
-	}
-	if(cam.upPressed){
-		posY += speedBase;
-	} else if(cam.downtPressed) {
-		posY -= speedBase;
-	}
+ 	glClearColor(backgrundColor[0],backgrundColor[1],backgrundColor[2],backgrundColor[3]);
+ 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // limpar o depth buffer
+ 	glMatrixMode(GL_MODELVIEW);
+ 	glLoadIdentity();
+ 	updateCam();
+ 	addObjetos();
+ 	renderFloor();
 }
 
 void updateState() {
-	controleCamera();
+	cam.update();
+	int i,j;
+	for(i=0;i<20;i++){
+		for(j=0;j<20;j++){
+			nivel1[i][j].update();
+		}
+	}
+
+	if(emTeste){
+		nivel1[0][0].emQueda = true;
+	}
+
 }
 
 /**
@@ -452,7 +311,7 @@ void mainRender() {
 Mouse button event handler
 */
 void onMouseButton(int button, int state, int x, int y) {
-	//printf("onMouseButton button: %d \n", button);
+	// printf("onMouseButton button: %d | %d | %d \n", button,x,y);
 	glutPostRedisplay();
 }
 
@@ -460,10 +319,6 @@ void onMouseButton(int button, int state, int x, int y) {
 Mouse move while button pressed event handler
 */
 void onMouseMove(int x, int y) {
-
-	/*mouseLastX = x;
-	mouseLastY = y;*/
-
 	glutPostRedisplay();
 }
 
@@ -471,22 +326,14 @@ void onMouseMove(int x, int y) {
 Mouse move with no button pressed event handler
 */
 void onMousePassiveMove(int x, int y) {
-
-	roty += (x - mouseLastX);
-	rotx -= (y - mouseLastY);
-
-	if (rotx < -128.0) {
-		rotx = -128.0;
-	}
-
-	if (rotx > -45.0) {
-		rotx = -45.0;
-	}
-
+	cam.roty += (x - mouseLastX);
+	cam.rotx -= (y - mouseLastY);
+	if (cam.rotx < -128.0)
+		cam.rotx = -128.0;
+	if (cam.rotx > -45.0)
+		cam.rotx = -45.0;
 	mouseLastX = x;
 	mouseLastY = y;
-
-	//glutPostRedisplay();
 }
 
 /**
@@ -501,6 +348,9 @@ void onKeyDown(unsigned char key, int x, int y) {
 		case 'p': cam.downtPressed = true; break;
 		case 'a': leftPressed = true; break;
 		case 'd': rightPressed = true; break;
+
+		case 't': emTeste = true; break;
+
 		default: break;
 	}
 	//glutPostRedisplay();
@@ -519,6 +369,10 @@ void onKeyUp(unsigned char key, int x, int y) {
 		case 'i': cam.upPressed = false; break;
 		case 'p': cam.downtPressed = false; break;
 		case 27: exit(0); break;
+
+
+		case 't': emTeste = false; break;
+
 		default: break;
 	}
 	//glutPostRedisplay();
