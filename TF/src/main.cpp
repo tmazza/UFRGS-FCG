@@ -75,7 +75,7 @@ Bloco *jog;
 
 void addObjetosNivel(int nivel){
 	char filename[14] = "res/teste.bmp";
-	float yBase = 0.2f;
+	float yBase = 0.4f;
 	if(nivel == 2){
 		filename[8] = 'i';
 		yBase += 0.4f;
@@ -291,16 +291,20 @@ void updateState() {
 	cam.update();
 
 	int i,j;
-	for(i=0;i<20;i++)
-		for(j=0;j<20;j++)
-			nivel1[i][j].update();
-	for(i=0;i<20;i++)
-		for(j=0;j<20;j++)
-			nivel2[i][j].update();
+	for(i=0;i<400;i++){
+		nivel1[i/20][i%20].update();
+		nivel2[i/20][i%20].update();
+		// Verifica se elemento de nivel 2 está em cima de um elemento válido do nível 1
+		if(nivel2[i/20][i%20].tipo == 'J'){
+			printf("%d , %d\n",nivel2[i/20][i%20].x,nivel2[i/20][i%20].y);
+		}
+
+	}
 
 	if(emTeste){
 		for(i=0;i<50;i++){
 			nivel1[i/20][i%20].emQueda = true;
+			nivel2[i/20][i%20].emQueda = true;
 		}
 		// printf("JOGO: %d, %d\n",jog->x,jog->y);
 		// printf("\n\n");

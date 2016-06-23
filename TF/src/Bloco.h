@@ -17,6 +17,7 @@ public:
   void update();
   void verificaQueda();
   void verificaJogador();
+  void controleDeQueda();
   void giraParaEsquerda();
   void giraParaDireita();
   bool isLock();

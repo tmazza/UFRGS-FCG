@@ -519,7 +519,7 @@ static GLvoid glmFirstPass(GLMmodel* model, FILE* file, mycallback *call)
     char        buf[128];
 
     /* make a default group */
-    group = glmAddGroup(model, "default");
+    group = glmAddGroup(model, (char *) "default");
 
     numvertices = numnormals = numtexcoords = numtriangles = 0;
     while(fscanf(file, "%s", buf) != EOF) {
@@ -740,7 +740,7 @@ static GLvoid glmSecondPass(GLMmodel* model, FILE* file, mycallback *call)
                     T(numtriangles).vindices[0] = v;
 					if (n== 181228)
 					{
-						printf("");
+						printf(" ");
 					}
                     T(numtriangles).nindices[0] = n;
                     fscanf(file, "%d//%d", &v, &n);
@@ -1187,7 +1187,7 @@ glmVertexNormals(GLMmodel* model, GLfloat angle)
 		{
 			if (node->index==204543)
 				{
-					printf("");
+					printf(" ");
 				}
             if (node->averaged) {
 
@@ -1592,7 +1592,7 @@ glmWriteOBJ(GLMmodel* model, char* filename, GLuint mode)
     /* spit out the texture coordinates */
     if (mode & GLM_TEXTURE) {
         fprintf(file, "\n");
-        fprintf(file, "# %d texcoords\n", model->texcoords);
+        fprintf(file, "# %p texcoords\n", model->texcoords);
         for (i = 1; i <= model->numtexcoords; i++) {
             fprintf(file, "vt %f %f\n",
                 model->texcoords[2 * i + 0],

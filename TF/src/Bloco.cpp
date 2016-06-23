@@ -16,7 +16,7 @@ Bloco::Bloco(){
   this->emQueda = false;
   this->inicializado = false;
   this->visivel = true;
-  this->gravidade = 0.0025;
+  this->gravidade = 0.01;
   this->lock = 0.0f;
 
   // Usado para o jogador
@@ -41,6 +41,9 @@ void Bloco::update(){
   this->verificaQueda();
   if(this->tipo == 'J')
     this->verificaJogador();
+
+  this->controleDeQueda();
+
   this->setLock(this->lock - 0.001f);
 }
 
@@ -72,11 +75,23 @@ void Bloco::verificaJogador(){
   }
   if (this->giraEsqPressed && !this->isLock()) {
     this->giraParaEsquerda();
-    setLock(0.08);
+    setLock(0.07);
   } else if(this->giraDirPressed && !this->isLock()){
     this->giraParaDireita();
-    setLock(0.08);
+    setLock(0.07);
   }
+  this->x = (this->posx+4)/0.4;
+  this->y = (this->posz+4)/0.4;
+  // printf("%f - %f \n",this->posx,this->posz);
+}
+
+/**
+ * Verifica se jogador esta fora da região do mapa ou sob uma região vazia
+ */
+void Bloco::controleDeQueda(){
+  if(this->posz > 4.0f || this->posz < -4.4f || this->posx > 4.0f || this->posx < -4.4f)  // Queda nas bordas
+    this->emQueda = true;
+
 }
 
 /**
