@@ -39,8 +39,8 @@ void Bloco::render(){
  */
 void Bloco::update(){
   this->verificaQueda();
-  if(this->tipo == 'J')
-    this->verificaJogador();
+  // if(this->tipo == 'J')
+    // this->verificaJogador();
 
   this->controleDeQueda();
 
@@ -62,18 +62,24 @@ void Bloco::verificaQueda(){
 /**
  * Controle movimentos e interações do jogados
  */
-void Bloco::verificaJogador(){
+void Bloco::verificaJogador(Bloco vizinhos[20][20]){
+  float novoX = this->posx,novoZ = this->posz;
   if(this->andaPressed){
-    if(this->direcao == 0) this->posz += 0.01f;
-    if(this->direcao == 1) this->posx -= 0.01f;
-    if(this->direcao == 2) this->posz -= 0.01f;
-    if(this->direcao == 3) this->posx += 0.01f;
+    if(this->direcao == 0) novoZ += 0.01f;
+    if(this->direcao == 1) novoX -= 0.01f;
+    if(this->direcao == 2) novoZ -= 0.01f;
+    if(this->direcao == 3) novoX += 0.01f;
   } else if(this->voltaPressed){
-    if(this->direcao == 0) this->posz -= 0.01f;
-    if(this->direcao == 1) this->posx += 0.01f;
-    if(this->direcao == 2) this->posz += 0.01f;
-    if(this->direcao == 3) this->posx -= 0.01f;
+    if(this->direcao == 0) novoZ -= 0.01f;
+    if(this->direcao == 1) novoX += 0.01f;
+    if(this->direcao == 2) novoZ += 0.01f;
+    if(this->direcao == 3) novoX -= 0.01f;
   }
+  if(isPontoValido(novoX,novoZ,vizinhos)){
+    this->posx = novoX;
+    this->posz = novoZ;
+  }
+
   if (this->giraEsqPressed && !this->isLock()) {
     this->giraParaEsquerda();
     setLock(0.07);
@@ -86,6 +92,9 @@ void Bloco::verificaJogador(){
   // printf("%f - %f \n",this->posx,this->posz);
 }
 
+bool Bloco::isPontoValido(float x,float z,Bloco vizinhos[20][20]){
+  return true;
+}
 /**
  * Verifica se jogador esta fora da região do mapa ou sob uma região vazia
  */
@@ -129,6 +138,13 @@ bool Bloco::setLock(float t){
 }
 
 /**
+ * Verifica se ponto (x,z) está dentro de quadrado de lado 0.8
+ */
+bool Bloco::pontoDentro(float x,float z){
+  return x < this->posx+0.4 && x > this->posx-0.4 && z < this->posz+0.4 && z > this->posz-0.4;
+}
+
+/**
  * Cria bloco na posicao esperada. Realiza operação somente uma vez,
  * quando o objeto ainda nao esta inicializado
  */
@@ -155,11 +171,4 @@ void Bloco::resetPosicao(int x, int y, float posVertical){
     this->posy = posVertical;
     this->posz = y*0.4-4.0;
   }
-}
-
-/**
- * Incrementa x
- */
-void Bloco::incX(float step){
-  printf("asdad%f\n",step);
 }

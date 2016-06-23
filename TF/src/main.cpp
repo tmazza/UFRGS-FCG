@@ -72,10 +72,9 @@ Bloco nivel1[20][20];
 Bloco nivel2[20][20];
 Bloco *jog;
 
-
 void addObjetosNivel(int nivel){
 	char filename[14] = "res/teste.bmp";
-	float yBase = 0.4f;
+	float yBase = 0.8f;
 	if(nivel == 2){
 		filename[8] = 'i';
 		yBase += 0.4f;
@@ -121,10 +120,10 @@ void addObjetosNivel(int nivel){
 							 nivel2[i][idx].instanciar('J',i, j/3, yBase,(GLMmodel *) modelCube);
 							 jog = &nivel2[i][idx];
 						}
-						else if( cR && !cG && !cB) nivel2[i][idx].instanciar('I',i, j/3, yBase,(GLMmodel *) modelCube);
+						else if( cR && !cG && !cB) nivel2[i][idx].instanciar('I',i, j/3, yBase,(GLMmodel *) modelOutro1);
 						else if(!cR &&  cG && !cB) nivel2[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelCube);
-						else if( cR &&  cG && !cB) nivel2[i][idx].instanciar('B',i, j/3, yBase,(GLMmodel *) modelCube);
-						else if( cR && !cG &&  cB) nivel2[i][idx].instanciar('R',i, j/3, yBase,(GLMmodel *) modelCube);
+						else if( cR &&  cG && !cB) nivel2[i][idx].instanciar('B',i, j/3, yBase,(GLMmodel *) modelOutro2);
+						else if( cR && !cG &&  cB) nivel2[i][idx].instanciar('R',i, j/3, yBase,(GLMmodel *) modelSphere);
 						else nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
 
 						nivel2[i][idx].render();
@@ -291,22 +290,22 @@ void renderScene() {
 void updateState() {
 	cam.update();
 
-	int i,xn1,yn1;
+	int i,x,y;
 	for(i=0;i<400;i++){
-		nivel1[i/20][i%20].update();
-		nivel2[i/20][i%20].update();
-		// Verifica se elemento de nivel 2 está em cima de um elemento válido do nível 1
-		if(nivel2[i/20][i%20].tipo == 'J'){
-			xn1 = nivel2[i/20][i%20].x;
-			yn1 = nivel2[i/20][i%20].y;
-			if(!nivel1[xn1][yn1].ativo){
-				nivel2[i/20][i%20].emQueda = true;
-			}
+		x = i/20; y = i%20;
+		nivel1[x][y].update();
+		nivel2[x][y].update();
+
+	  if(nivel2[x][y].tipo == 'J'){ // Movimentação do jogador
+	    nivel2[x][y].verificaJogador(nivel1);
 		}
+
+		if(nivel2[x][y].tipo != 'V' && !nivel1[nivel2[x][y].x][nivel2[x][y].y].ativo) // Verifica se elemento de nivel 2 está
+			nivel2[x][y].emQueda = true;																								// em cima de um elemento válido do nível 1
 	}
 
 	if(emTeste){
-		for(i=0;i<50;i++){
+		for(i=0;i<350;i++){
 			nivel1[i/20][i%20].emQueda = true;
 			// nivel2[i/20][i%20].emQueda = true;
 		}
