@@ -105,7 +105,8 @@ void addObjetosNivel(int nivel){
 					cG = (int)data[j+1] == 255;
 					cB = (int)data[j+2] == 255;
 					if(nivel == 1){
-							nivel1[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelCube);
+							if(!cR &&  cG && !cB) nivel1[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelCube);
+							else nivel1[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
 							nivel1[i][idx].render();
 					} else {
 
@@ -290,21 +291,24 @@ void renderScene() {
 void updateState() {
 	cam.update();
 
-	int i,j;
+	int i,xn1,yn1;
 	for(i=0;i<400;i++){
 		nivel1[i/20][i%20].update();
 		nivel2[i/20][i%20].update();
 		// Verifica se elemento de nivel 2 está em cima de um elemento válido do nível 1
 		if(nivel2[i/20][i%20].tipo == 'J'){
-			printf("%d , %d\n",nivel2[i/20][i%20].x,nivel2[i/20][i%20].y);
+			xn1 = nivel2[i/20][i%20].x;
+			yn1 = nivel2[i/20][i%20].y;
+			if(!nivel1[xn1][yn1].ativo){
+				nivel2[i/20][i%20].emQueda = true;
+			}
 		}
-
 	}
 
 	if(emTeste){
 		for(i=0;i<50;i++){
 			nivel1[i/20][i%20].emQueda = true;
-			nivel2[i/20][i%20].emQueda = true;
+			// nivel2[i/20][i%20].emQueda = true;
 		}
 		// printf("JOGO: %d, %d\n",jog->x,jog->y);
 		// printf("\n\n");

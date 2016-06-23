@@ -9,7 +9,7 @@ public:
   float posx,posy,posz;
   float gravidade;
   void *modelo;
-  bool emQueda,visivel,inicializado;
+  bool emQueda,ativo,inicializado;
   bool andaPressed,voltaPressed,giraEsqPressed,giraDirPressed;
   int direcao;
   float lock;

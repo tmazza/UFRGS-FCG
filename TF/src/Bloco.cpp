@@ -15,7 +15,7 @@
 Bloco::Bloco(){
   this->emQueda = false;
   this->inicializado = false;
-  this->visivel = true;
+  this->ativo = true;
   this->gravidade = 0.01;
   this->lock = 0.0f;
 
@@ -26,7 +26,7 @@ Bloco::Bloco(){
 }
 
 void Bloco::render(){
-  if(this->tipo != 'V' && this->visivel){
+  if(this->tipo != 'V'){
     glPushMatrix();
     glTranslatef(this->posx,this->posy,this->posz);
     glmDraw((GLMmodel *) this->modelo, GLM_SMOOTH);
@@ -53,8 +53,9 @@ void Bloco::update(){
 void Bloco::verificaQueda(){
   if(this->emQueda && this->posy > -2.0){
     this->posy -= this->gravidade; // Linear :D
+    this->ativo = false;
   } else if(this->posy <= -2.0){
-    this->visivel = false;
+    this->tipo = 'V'; // Vazio nao é renderizado | perde-se a informação de tipo
   }
 }
 
@@ -91,7 +92,6 @@ void Bloco::verificaJogador(){
 void Bloco::controleDeQueda(){
   if(this->posz > 4.0f || this->posz < -4.4f || this->posx > 4.0f || this->posx < -4.4f)  // Queda nas bordas
     this->emQueda = true;
-
 }
 
 /**
@@ -128,10 +128,6 @@ bool Bloco::setLock(float t){
     this->lock = 0.0f;
 }
 
-
-
-
-
 /**
  * Cria bloco na posicao esperada. Realiza operação somente uma vez,
  * quando o objeto ainda nao esta inicializado
@@ -142,6 +138,8 @@ void Bloco::instanciar(char tipo,int x, int y, float posVertical, void *modelo){
     this->modelo = (GLMmodel *) modelo;
     this->resetPosicao(x,y,posVertical);
     this->inicializado = true;
+    if(tipo == 'V')
+      this->ativo = false;
   }
 }
 
