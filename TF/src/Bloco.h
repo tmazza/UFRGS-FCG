@@ -11,7 +11,10 @@ public:
   float gravidade;
   void *modelo;
   bool emQueda,ativo,inicializado;
+  // Blocos com movimento
   bool andaPressed,voltaPressed,giraEsqPressed,giraDirPressed;
+  bool colisaoBuraco;
+
   int direcao;
   float lock;
 
@@ -24,11 +27,14 @@ public:
   bool isLock();
   bool setLock(float t);
   bool jogadorTemColisao(float x,float z,Bloco v[20][20]);
-  bool pontoDentro(float x,float z);
+  bool pontoDentro(float x,float z, float raio);
+  bool emCimaBuraco(Bloco v[20][20],int *x,int *y);
 
   void render();
   void instanciar(char tipo,int x, int y, float posVertical, void *modelo);
   void resetPosicao(int x, int y, float posVertical);
+
+  void metamorfisa(char tipo,void *modelo);
 
 };
 

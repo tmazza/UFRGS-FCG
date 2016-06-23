@@ -21,6 +21,7 @@ Bloco::Bloco(){
 
   // Usado para o jogador
   this->andaPressed = this->voltaPressed = this->giraEsqPressed = this->giraDirPressed = false;
+  this->colisaoBuraco = false;
   this->direcao = 0; // 0=norte|1=oeste|2=sul|3=lest | sentido horario
 
 }
@@ -38,12 +39,9 @@ void Bloco::render(){
  * Evento aplicados no bloco
  */
 void Bloco::update(){
+  this->colisaoBuraco = false;
   this->verificaQueda();
-  // if(this->tipo == 'J')
-    // this->verificaJogador();
-
   this->controleDeQueda();
-
   this->setLock(this->lock - 0.001f);
 }
 
@@ -64,16 +62,17 @@ void Bloco::verificaQueda(){
  */
 void Bloco::verificaJogador(Bloco vizinho[20][20]){
   float novoX = this->posx,novoZ = this->posz;
+  float step = 0.05f;
   if(this->andaPressed){
-    if(this->direcao == 0) novoZ += 0.01f;
-    if(this->direcao == 1) novoX -= 0.01f;
-    if(this->direcao == 2) novoZ -= 0.01f;
-    if(this->direcao == 3) novoX += 0.01f;
+    if(this->direcao == 0) novoZ += step;
+    if(this->direcao == 1) novoX -= step;
+    if(this->direcao == 2) novoZ -= step;
+    if(this->direcao == 3) novoX += step;
   } else if(this->voltaPressed){
-    if(this->direcao == 0) novoZ -= 0.01f;
-    if(this->direcao == 1) novoX += 0.01f;
-    if(this->direcao == 2) novoZ += 0.01f;
-    if(this->direcao == 3) novoX -= 0.01f;
+    if(this->direcao == 0) novoZ -= step;
+    if(this->direcao == 1) novoX += step;
+    if(this->direcao == 2) novoZ += step;
+    if(this->direcao == 3) novoX -= step;
   }
   if(jogadorTemColisao(novoX,novoZ,vizinho)){
     this->posx = novoX;
@@ -89,28 +88,40 @@ void Bloco::verificaJogador(Bloco vizinho[20][20]){
   }
   this->x = (this->posx+4)/0.4;
   this->y = (this->posz+4)/0.4;
-  // printf("%f - %f \n",this->posx,this->posz);
 }
 
+/**
+ * Verifica colisão com buraco
+ */
+bool Bloco::emCimaBuraco(Bloco v[20][20],int *x,int *y){
+  int i,j;
+  for(i=0;i<20;i++)
+    for(j=0;j<20;j++)
+      if(v[i][j].id != this->id && v[i][j].tipo == 'B' && v[i][j].pontoDentro(this->posx,this->posz,0.2)){
+        *x = v[i][j].x;
+        *y = v[i][j].y;
+        return true;
+      }
+  return false;
+}
+
+/**
+ * Verifica se existe colisão com algum elemento do cenario
+ */
 bool Bloco::jogadorTemColisao(float x,float z,Bloco v[20][20]){
   int i,j;
-  for(i=0;i<20;i++){
-    for(j=0;j<20;j++){
-      if(v[i][j].id != this->id && (v[i][j].tipo == 'P' || v[i][j].tipo == 'I')){
-        if(v[i][j].pontoDentro(x,z))
-          return false;
-//        printf("V:%d - %c - %d\n",v[i][j].id,v[i][j].tipo,v[i][j].pontoDentro(x,z));
-      }
-    }
-  }
+  for(i=0;i<20;i++)
+    for(j=0;j<20;j++)
+      if(v[i][j].id != this->id && (v[i][j].tipo == 'P' || v[i][j].tipo == 'I') && v[i][j].pontoDentro(x,z,0.38))
+        return false;
   return true;
 }
 
 /**
- * Verifica se ponto (x,z) está dentro de quadrado de lado 0.8
+ * Verifica se ponto (x,z) está dentro de quadrado de lado raio*2
  */
-bool Bloco::pontoDentro(float x,float z){
-  return x < this->posx+0.38 && x > this->posx-0.38 && z < this->posz+0.38 && z > this->posz-0.38;
+bool Bloco::pontoDentro(float x,float z, float raio){
+  return x < this->posx+raio && x > this->posx-raio && z < this->posz+raio && z > this->posz-raio;
 }
 
 /**
@@ -182,4 +193,12 @@ void Bloco::resetPosicao(int x, int y, float posVertical){
     this->posy = posVertical;
     this->posz = y*0.4-4.0;
   }
+}
+
+/**
+ * Muda tipo e modelo do bloco
+ */
+void Bloco::metamorfisa(char tipo,void *modelo){
+  this->tipo = tipo;
+  this->modelo = (GLMmodel *) modelo;
 }

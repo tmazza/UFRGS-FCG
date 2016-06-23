@@ -44,6 +44,7 @@ void setViewport(GLint left, GLint right, GLint bottom, GLint top);
 void updateState();
 void renderFloor();
 void updateCam();
+void criaRachadura(int x,int y,int direcao);
 
 int windowWidth = 1000;
 int windowHeight = 600;
@@ -55,7 +56,7 @@ int mouseLastX = 0;
 int mouseLastY = 0;
 
 bool emTeste = false;
-
+bool spacePressed = false;
 
 float planeSize = 100.0f;
 int xQuads = 40;
@@ -110,7 +111,6 @@ void addObjetosNivel(int nivel){
 							else nivel1[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
 							nivel1[i][idx].render();
 					} else {
-
 					/** J: 001 | jogador
 						* I: 100 | inimigo
 						* P: 010 | parede (ou bloco conforme especificação)
@@ -126,7 +126,7 @@ void addObjetosNivel(int nivel){
 						else if(!cR &&  cG && !cB) nivel2[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelCube);
 						else if( cR &&  cG && !cB) nivel2[i][idx].instanciar('B',i, j/3, yBase,(GLMmodel *) modelOutro2);
 						else if( cR && !cG &&  cB) nivel2[i][idx].instanciar('R',i, j/3, yBase,(GLMmodel *) modelSphere);
-						else nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
+						else nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelSphere);
 
 						nivel2[i][idx].id = count;
 						nivel2[i][idx].render();
@@ -290,17 +290,41 @@ void renderScene() {
  	renderFloor();
 }
 
+/**
+ * Cria sequencia de rachaduras de acordo com a direcao jogador
+ */
+void criaRachadura(int x,int y,int direcao){
+	int i;
+	if(direcao == 3){
+		for(i=x+1;i<20;i++)
+			if(nivel1[i][y].ativo && nivel2[i][y].tipo == 'V') nivel2[i][y].metamorfisa('R',modelSphere); else break;
+	} else if(direcao == 1){
+		for(i=x-1;i>0;i--)
+			if(nivel1[i][y].ativo && nivel2[i][y].tipo == 'V') nivel2[i][y].metamorfisa('R',modelSphere); else break;
+	} else if(direcao == 0) {
+		for(i=y+1;i<20;i++)
+			if(nivel1[x][i].ativo && nivel2[x][i].tipo == 'V') nivel2[x][i].metamorfisa('R',modelSphere); else break;
+	} else if(direcao == 2){
+		for(i=y-1;i>0;i--)
+			if(nivel1[x][i].ativo && nivel2[x][i].tipo == 'V') nivel2[x][i].metamorfisa('R',modelSphere); else break;
+	}
+}
+
 void updateState() {
 	cam.update();
-
+	// Blocos no nivel 1 e 2
 	int i,x,y;
 	for(i=0;i<400;i++){
 		x = i/20; y = i%20;
 		nivel1[x][y].update();
 		nivel2[x][y].update();
 
-	  if(nivel2[x][y].tipo == 'J'){ // Movimentação do jogador
+	  if(nivel2[x][y].tipo == 'J') { // Movimentação do jogador
 	    nivel2[x][y].verificaJogador(nivel2);
+			int xbur,ybur;
+			if(spacePressed && nivel2[x][y].emCimaBuraco(nivel2,&xbur,&ybur)){
+				criaRachadura(xbur,ybur,nivel2[x][y].direcao);
+			}
 		}
 
 		if(nivel2[x][y].tipo != 'V' && !nivel1[nivel2[x][y].x][nivel2[x][y].y].ativo) // Verifica se elemento de nivel 2 está
@@ -326,7 +350,7 @@ void mainRender() {
 	renderScene();
 	glFlush();
 	glutPostRedisplay();
-	usleep(100);
+	usleep(1000);
 }
 
 /**
@@ -363,7 +387,7 @@ Key press event handler
 */
 void onKeyDown(unsigned char key, int x, int y) {
 	switch (key) {
-		// case 32: spacePressed = true; break;
+		case 32: spacePressed = true; break;
 		case 'o': cam.frentePressed = true; break;
 		case 'l': cam.trasPressed = true; break;
 		case 'i': cam.upPressed = true; break;
@@ -385,7 +409,7 @@ Key release event handler
 */
 void onKeyUp(unsigned char key, int x, int y) {
 	switch (key) {
-		// case 32: spacePressed = false; break;
+		case 32: spacePressed = false; break;
 		case 'o': cam.frentePressed = false;	break;
 		case 'l': cam.trasPressed = false; break;
 		case 'i': cam.upPressed = false; break;
