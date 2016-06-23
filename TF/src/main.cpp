@@ -10,7 +10,6 @@
 #include "bitmap.h" //bitmap class to load bitmaps for textures
 #include "Camera.h"
 #include "Bloco.h"
-#include "Jogador.h"
 
 #pragma comment(lib, "OpenAL32.lib")
 #pragma comment(lib, "alut.lib")
@@ -71,7 +70,7 @@ GLMmodel *modelCube;
 Camera cam;
 Bloco nivel1[20][20];
 Bloco nivel2[20][20];
-Jogador *jog;
+Bloco *jog;
 
 
 void addObjetosNivel(int nivel){
@@ -119,7 +118,7 @@ void addObjetosNivel(int nivel){
 						if(!cR && !cG && cB)
 						{
 							 nivel2[i][idx].instanciar('J',i, j/3, yBase,(GLMmodel *) modelCube);
-							 jog = (Jogador*) &nivel2[i][idx];
+							 jog = &nivel2[i][idx];
 						}
 						else if( cR && !cG && !cB) nivel2[i][idx].instanciar('I',i, j/3, yBase,(GLMmodel *) modelCube);
 						else if(!cR &&  cG && !cB) nivel2[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelCube);
@@ -290,22 +289,21 @@ void renderScene() {
 
 void updateState() {
 	cam.update();
+
 	int i,j;
-	for(i=0;i<20;i++){
-		for(j=0;j<20;j++){
+	for(i=0;i<20;i++)
+		for(j=0;j<20;j++)
 			nivel1[i][j].update();
-		}
-	}
+	for(i=0;i<20;i++)
+		for(j=0;j<20;j++)
+			nivel2[i][j].update();
 
 	if(emTeste){
 		for(i=0;i<50;i++){
 			nivel1[i/20][i%20].emQueda = true;
 		}
-		printf("JOGO: %d, %d\n",jog->x,jog->y);
-		jog->teste();
-		printf("\n\n");
-
-
+		// printf("JOGO: %d, %d\n",jog->x,jog->y);
+		// printf("\n\n");
 	}
 
 }
@@ -361,6 +359,7 @@ void onKeyDown(unsigned char key, int x, int y) {
 		case 'i': cam.upPressed = true; break;
 		case 'p': cam.downtPressed = true; break;
 		case 'w': jog->andaPressed = true; break;
+		case 's': jog->voltaPressed = true; break;
 		case 'a': jog->giraEsqPressed = true; break;
 		case 'd': jog->giraDirPressed = true; break;
 
@@ -381,11 +380,12 @@ void onKeyUp(unsigned char key, int x, int y) {
 		case 'l': cam.trasPressed = false; break;
 		case 'i': cam.upPressed = false; break;
 		case 'p': cam.downtPressed = false; break;
-		case 'w': jog->andaPressed = true; break;
-		case 'a': jog->giraEsqPressed = true; break;
-		case 'd': jog->giraDirPressed = true; break;
+		case 'w': jog->andaPressed = false; break;
+		case 's': jog->voltaPressed = false; break;
+		case 'a': jog->giraEsqPressed = false; break;
+		case 'd': jog->giraDirPressed = false; break;
 		case 27: exit(0); break;
-		
+
 		case 't': emTeste = false; break;
 
 		default: break;

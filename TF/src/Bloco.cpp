@@ -17,6 +17,12 @@ Bloco::Bloco(){
   this->inicializado = false;
   this->visivel = true;
   this->gravidade = 0.0025;
+  this->lock = 0.0f;
+
+  // Usado para o jogador
+  this->andaPressed = this->voltaPressed = this->giraEsqPressed = this->giraDirPressed = false;
+  this->direcao = 0; // 0=norte|1=oeste|2=sul|3=lest | sentido horario
+
 }
 
 void Bloco::render(){
@@ -33,6 +39,9 @@ void Bloco::render(){
  */
 void Bloco::update(){
   this->verificaQueda();
+  if(this->tipo == 'J')
+    this->verificaJogador();
+  this->setLock(this->lock - 0.001f);
 }
 
 /**
@@ -45,6 +54,68 @@ void Bloco::verificaQueda(){
     this->visivel = false;
   }
 }
+
+/**
+ * Controle movimentos e interações do jogados
+ */
+void Bloco::verificaJogador(){
+  if(this->andaPressed){
+    if(this->direcao == 0) this->posz += 0.01f;
+    if(this->direcao == 1) this->posx -= 0.01f;
+    if(this->direcao == 2) this->posz -= 0.01f;
+    if(this->direcao == 3) this->posx += 0.01f;
+  } else if(this->voltaPressed){
+    if(this->direcao == 0) this->posz -= 0.01f;
+    if(this->direcao == 1) this->posx += 0.01f;
+    if(this->direcao == 2) this->posz += 0.01f;
+    if(this->direcao == 3) this->posx -= 0.01f;
+  }
+  if (this->giraEsqPressed && !this->isLock()) {
+    this->giraParaEsquerda();
+    setLock(0.08);
+  } else if(this->giraDirPressed && !this->isLock()){
+    this->giraParaDireita();
+    setLock(0.08);
+  }
+}
+
+/**
+* Muda direção para esquerda
+*/
+void Bloco::giraParaEsquerda(){
+  this->direcao -= 1;
+  if(this->direcao == -1)
+    this->direcao = 3;
+}
+
+/**
+ * Muda direção para direita
+ */
+void Bloco::giraParaDireita(){
+  this->direcao += 1;
+  if(this->direcao == 4)
+    this->direcao = 0;
+}
+
+/**
+ * Controla se alguma ação está não finalziada no bloco.
+ */
+bool Bloco::isLock(){
+  return this->lock > 0.0f;
+}
+
+/**
+ * Bloquei atividade no bloco por 1000*t iterações.
+ */
+bool Bloco::setLock(float t){
+  this->lock = t;
+  if(this->lock < 0.0f)
+    this->lock = 0.0f;
+}
+
+
+
+
 
 /**
  * Cria bloco na posicao esperada. Realiza operação somente uma vez,
@@ -71,4 +142,11 @@ void Bloco::resetPosicao(int x, int y, float posVertical){
     this->posy = posVertical;
     this->posz = y*0.4-4.0;
   }
+}
+
+/**
+ * Incrementa x
+ */
+void Bloco::incX(float step){
+  printf("asdad%f\n",step);
 }
