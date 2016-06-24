@@ -27,19 +27,18 @@ void Camera::updatePosicao(Bloco jogador){
 	if(jogador.direcao == 1) somax=+1.0;
 	if(jogador.direcao == 2) somaz=+1.0;
 	if(jogador.direcao == 3) somax=-1.0;
-
   if(this->visualizacao == 0) { // Em 2º pessoa
   	gluLookAt(jogador.posx+somax,jogador.posy+0.5,jogador.posz+somaz,
   		jogador.posx,jogador.posy,jogador.posz,
   		0.0,1.0,0.0);
   } else if(this->visualizacao == 1){ // Camera aerea
-  	gluLookAt(0.0,11.0,0.0,
-  		0.0,0.0,0.1,
-  		0.0,1.0,0.0);
+    gluLookAt(jogador.posx-(somax/10),jogador.posy+0.0,jogador.posz-(somaz/10),
+      jogador.posx-somax,jogador.posy,jogador.posz-somaz,
+      0.0,1.0,0.0);
   } else { // 1º pessoa
-  	gluLookAt(0.0,11.0,0.0,
-  		0.0,0.0,0.1,
-  		0.0,1.0,0.0);
+    gluLookAt(0.0,11.0,0.0,
+      0.0,0.0,0.1,
+      0.0,1.0,0.0);
   }
 }
 
