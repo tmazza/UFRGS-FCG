@@ -10,20 +10,12 @@
 #include "bitmap.h" //bitmap class to load bitmaps for textures
 #include "Camera.h"
 #include "Bloco.h"
+#include "Partida.h"
 
 #pragma comment(lib, "OpenAL32.lib")
 #pragma comment(lib, "alut.lib")
 
 #define PI 3.14159265
-
-// sound stuff
-#define NUM_BUFFERS 1
-#define NUM_SOURCES 1
-#define NUM_ENVIRONMENTS 1
-
-#define SMOOTH 0
-#define SMOOTH_MATERIAL 1
-#define SMOOTH_MATERIAL_TEXTURE 2
 
 using namespace std;
 void mainInit();
@@ -73,6 +65,8 @@ Camera cam;
 Bloco nivel1[20][20];
 Bloco nivel2[20][20];
 Bloco *jog;
+
+Partida partida;
 
 void addObjetosNivel(int nivel){
 	char filename[14] = "res/teste.bmp";
@@ -299,15 +293,16 @@ void criaRachadura(int x,int y,int direcao){
 		for(i=x+1;i<20;i++)
 			if(nivel1[i][y].ativo && nivel2[i][y].tipo == 'V') nivel2[i][y].metamorfisa('R',modelSphere); else break;
 	} else if(direcao == 1){
-		for(i=x-1;i>0;i--)
+		for(i=x-1;i>=0;i--)
 			if(nivel1[i][y].ativo && nivel2[i][y].tipo == 'V') nivel2[i][y].metamorfisa('R',modelSphere); else break;
 	} else if(direcao == 0) {
 		for(i=y+1;i<20;i++)
 			if(nivel1[x][i].ativo && nivel2[x][i].tipo == 'V') nivel2[x][i].metamorfisa('R',modelSphere); else break;
 	} else if(direcao == 2){
-		for(i=y-1;i>0;i--)
+		for(i=y-1;i>=0;i--)
 			if(nivel1[x][i].ativo && nivel2[x][i].tipo == 'V') nivel2[x][i].metamorfisa('R',modelSphere); else break;
 	}
+	partida.aplicaCorte(nivel1[0],nivel2[0]);
 }
 
 void updateState() {
@@ -322,7 +317,8 @@ void updateState() {
 	  if(nivel2[x][y].tipo == 'J') { // Movimentação do jogador
 	    nivel2[x][y].verificaJogador(nivel2);
 			int xbur,ybur;
-			if(spacePressed && nivel2[x][y].emCimaBuraco(nivel2,&xbur,&ybur)){
+			if(spacePressed && !nivel2[x][y].isLock() && nivel2[x][y].emCimaBuraco(nivel2,&xbur,&ybur)){
+				nivel2[x][y].setLock(0.03f);
 				criaRachadura(xbur,ybur,nivel2[x][y].direcao);
 			}
 		}
