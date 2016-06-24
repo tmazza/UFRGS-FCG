@@ -64,7 +64,7 @@ int count;
 Camera cam;
 Bloco nivel1[20][20];
 Bloco nivel2[20][20];
-Bloco *jog;
+Bloco jog;
 
 Partida partida;
 
@@ -113,8 +113,8 @@ void addObjetosNivel(int nivel){
 						* V: ??? | vazio */
 						if(!cR && !cG && cB)
 						{
-							 nivel2[i][idx].instanciar('J',i, j/3, yBase,(GLMmodel *) modelCube);
-							 jog = &nivel2[i][idx];
+							 nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
+							 jog.instanciar('J',i, j/3, yBase,(GLMmodel *) modelCube);
 						}
 						else if( cR && !cG && !cB) nivel2[i][idx].instanciar('I',i, j/3, yBase,(GLMmodel *) modelOutro1);
 						else if(!cR &&  cG && !cB) nivel2[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelCube);
@@ -134,7 +134,7 @@ void addObjetosNivel(int nivel){
 void addObjetos() {
 	addObjetosNivel(1);
 	addObjetosNivel(2);
-
+	jog.render();
 	// a.modelo = (GLMmodel *) modelSphere;
 	// a.render();
 	// glPushMatrix();
@@ -313,19 +313,20 @@ void updateState() {
 		x = i/20; y = i%20;
 		nivel1[x][y].update();
 		nivel2[x][y].update();
-
-	  if(nivel2[x][y].tipo == 'J') { // Movimentação do jogador
-	    nivel2[x][y].verificaJogador(nivel2);
-			int xbur,ybur;
-			if(spacePressed && !nivel2[x][y].isLock() && nivel2[x][y].emCimaBuraco(nivel2,&xbur,&ybur)){
-				nivel2[x][y].setLock(0.03f);
-				criaRachadura(xbur,ybur,nivel2[x][y].direcao);
-			}
-		}
-
 		if(nivel2[x][y].tipo != 'V' && !nivel1[nivel2[x][y].x][nivel2[x][y].y].ativo) // Verifica se elemento de nivel 2 está
 			nivel2[x][y].emQueda = true;																								// em cima de um elemento válido do nível 1
 	}
+	// Jogoador
+	jog.verificaJogador(nivel2);
+	if(jog.tipo != 'V' && !nivel1[jog.x][jog.y].ativo) 												// TODO: unificar com função de cima
+		jog.emQueda = true;
+	// TODO: colocar isso dentro da função verificaJogador() ou update()!!!!
+	int xbur,ybur;
+	if(spacePressed && !jog.isLock() && jog.emCimaBuraco(nivel2,&xbur,&ybur)){
+		jog.setLock(0.03f);
+		criaRachadura(xbur,ybur,jog.direcao);
+	}
+
 
 	if(emTeste){
 		for(i=0;i<350;i++){
@@ -388,10 +389,10 @@ void onKeyDown(unsigned char key, int x, int y) {
 		case 'l': cam.trasPressed = true; break;
 		case 'i': cam.upPressed = true; break;
 		case 'p': cam.downtPressed = true; break;
-		case 'w': jog->andaPressed = true; break;
-		case 's': jog->voltaPressed = true; break;
-		case 'a': jog->giraEsqPressed = true; break;
-		case 'd': jog->giraDirPressed = true; break;
+		case 'w': jog.andaPressed = true; break;
+		case 's': jog.voltaPressed = true; break;
+		case 'a': jog.giraEsqPressed = true; break;
+		case 'd': jog.giraDirPressed = true; break;
 
 		case 't': emTeste = true; break;
 
@@ -410,10 +411,10 @@ void onKeyUp(unsigned char key, int x, int y) {
 		case 'l': cam.trasPressed = false; break;
 		case 'i': cam.upPressed = false; break;
 		case 'p': cam.downtPressed = false; break;
-		case 'w': jog->andaPressed = false; break;
-		case 's': jog->voltaPressed = false; break;
-		case 'a': jog->giraEsqPressed = false; break;
-		case 'd': jog->giraDirPressed = false; break;
+		case 'w': jog.andaPressed = false; break;
+		case 's': jog.voltaPressed = false; break;
+		case 'a': jog.giraEsqPressed = false; break;
+		case 'd': jog.giraDirPressed = false; break;
 		case 27: exit(0); break;
 
 		case 't': emTeste = false; break;

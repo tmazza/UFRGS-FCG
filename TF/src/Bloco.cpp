@@ -21,7 +21,6 @@ Bloco::Bloco(){
 
   // Usado para o jogador
   this->andaPressed = this->voltaPressed = this->giraEsqPressed = this->giraDirPressed = false;
-  this->colisaoBuraco = false;
   this->direcao = 0; // 0=norte|1=oeste|2=sul|3=lest | sentido horario
 
 }
@@ -39,7 +38,6 @@ void Bloco::render(){
  * Evento aplicados no bloco
  */
 void Bloco::update(){
-  this->colisaoBuraco = false;
   this->verificaQueda();
   this->controleDeQueda();
   this->setLock(this->lock - 0.001f);
@@ -61,8 +59,9 @@ void Bloco::verificaQueda(){
  * Controle movimentos e interações do jogados
  */
 void Bloco::verificaJogador(Bloco vizinho[20][20]){
+	this->update();
   float novoX = this->posx,novoZ = this->posz;
-  float step = 0.05f;
+  float step = 0.01f;
   if(this->andaPressed){
     if(this->direcao == 0) novoZ += step;
     if(this->direcao == 1) novoX -= step;
@@ -78,7 +77,6 @@ void Bloco::verificaJogador(Bloco vizinho[20][20]){
     this->posx = novoX;
     this->posz = novoZ;
   }
-
   if (this->giraEsqPressed && !this->isLock()) {
     this->giraParaEsquerda();
     setLock(0.07);
@@ -86,8 +84,9 @@ void Bloco::verificaJogador(Bloco vizinho[20][20]){
     this->giraParaDireita();
     setLock(0.07);
   }
-  this->x = (this->posx+4)/0.4;
-  this->y = (this->posz+4)/0.4;
+  this->x = (this->posx+4.2)/0.4;
+  this->y = (this->posz+4.2)/0.4;
+
 }
 
 /**
@@ -128,7 +127,7 @@ bool Bloco::pontoDentro(float x,float z, float raio){
  * Verifica se jogador esta fora da região do mapa ou sob uma região vazia
  */
 void Bloco::controleDeQueda(){
-  if(this->posz > 4.0f || this->posz < -4.4f || this->posx > 4.0f || this->posx < -4.4f)  // Queda nas bordas
+  if(this->posz > 3.8f || this->posz < -4.2f || this->posx > 3.8f || this->posx < -4.2f)  // Queda nas bordas
     this->emQueda = true;
 }
 
