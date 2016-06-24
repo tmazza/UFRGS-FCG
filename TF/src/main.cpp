@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <cmath>
+#include <map>
 #include <iostream>
 #include <GL/glut.h>
 #include "glm.h"
@@ -66,7 +67,9 @@ Bloco nivel2[20][20];
 Bloco jog;
 Partida partida;
 
-Bloco ini;
+int qtdIni;
+map< int,Bloco> inimigos;
+map< int,Bloco>::iterator it;
 
 void addObjetosNivel(int nivel){
 	char filename[14] = "res/teste.bmp";
@@ -92,6 +95,7 @@ void addObjetosNivel(int nivel){
 	int idx;
 	bool cR,cG,cB;
 	count = 0;
+	qtdIni = 0;
 	for(int i = height-1; i >= 0; i--) {
 			fread(data, sizeof(unsigned char), row_padded, f);
 			for(int j = 0; j < width*3; j += 3) {
@@ -105,24 +109,19 @@ void addObjetosNivel(int nivel){
 							else nivel1[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
 							nivel1[i][idx].render();
 					} else {
-					/** J: 001 | jogador
-						* I: 100 | inimigo
-						* P: 010 | parede (ou bloco conforme especificação)
-						* B: 110 | buraco
-						* R: 101 | rachadura
-						* V: ??? | vazio */
-						if(!cR && !cG && cB){
+						if(!cR && !cG && cB){ // J: 001 | jogador
 							 nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
 							 jog.instanciar('J',i, j/3, yBase,(GLMmodel *) modelCube);
 						}
-						else if( cR && !cG && !cB){
+						else if( cR && !cG && !cB){ // I: 100 | inimigo
 							nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelOutro1);
-							ini.instanciar('I',i, j/3, yBase,(GLMmodel *) modelOutro1);
+							inimigos[qtdIni].instanciar('I',i, j/3, yBase,(GLMmodel *) modelOutro1);
+							qtdIni++;
 						}
-						else if(!cR &&  cG && !cB) nivel2[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelCube);
-						else if( cR &&  cG && !cB) nivel2[i][idx].instanciar('B',i, j/3, yBase,(GLMmodel *) modelOutro2);
-						else if( cR && !cG &&  cB) nivel2[i][idx].instanciar('R',i, j/3, yBase,(GLMmodel *) modelSphere);
-						else nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelSphere);
+						else if(!cR &&  cG && !cB) nivel2[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelCube); // P: 010 | parede
+						else if( cR &&  cG && !cB) nivel2[i][idx].instanciar('B',i, j/3, yBase,(GLMmodel *) modelOutro2); // B: 110 | buraco
+						else if( cR && !cG &&  cB) nivel2[i][idx].instanciar('R',i, j/3, yBase,(GLMmodel *) modelSphere); // R: 101 | rachadura
+						else nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelSphere); // V: * | vazio
 
 						nivel2[i][idx].id = count;
 						nivel2[i][idx].render();
@@ -137,7 +136,8 @@ void addObjetos() {
 	addObjetosNivel(1);
 	addObjetosNivel(2);
 	jog.render();
-	ini.render();
+	for (it = inimigos.begin() ; it != inimigos.end(); ++it)
+		it->second.render();
 
 }
 
@@ -300,7 +300,8 @@ void updateState() {
 		criaRachadura(xbur,ybur,jog.direcao);
 	}
 	// Inimigos
-	ini.updateInimigo(nivel1,nivel2,jog);
+	for (it = inimigos.begin() ; it != inimigos.end(); ++it)
+		it->second.updateInimigo(nivel1,nivel2,jog);
 
 	if(emTeste){
 		for(i=0;i<350;i++){
