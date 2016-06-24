@@ -14,12 +14,12 @@ public:
   // Blocos com movimento
   bool andaPressed,voltaPressed,giraEsqPressed,giraDirPressed;
 
-  int direcao;
+  int direcao,mudarDirecao;
   float lock;
 
   void update();
   void verificaQueda();
-  void verificaJogador(Bloco vizinho[20][20]);
+  void updateJogador(Bloco n2[20][20]);
   void controleDeQueda();
   void giraParaEsquerda();
   void giraParaDireita();
@@ -32,6 +32,9 @@ public:
   void render();
   void instanciar(char tipo,int x, int y, float posVertical, void *modelo);
   void resetPosicao(int x, int y, float posVertical);
+
+  void updateInimigo(Bloco n1[20][20],Bloco n2[20][20],Bloco jog);
+  bool inimigoTemColisao(float x,float z,Bloco n2[20][20]);
 
   void metamorfisa(char tipo,void *modelo);
 

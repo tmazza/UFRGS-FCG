@@ -64,8 +64,9 @@ Camera cam;
 Bloco nivel1[20][20];
 Bloco nivel2[20][20];
 Bloco jog;
-
 Partida partida;
+
+Bloco ini;
 
 void addObjetosNivel(int nivel){
 	char filename[14] = "res/teste.bmp";
@@ -110,12 +111,14 @@ void addObjetosNivel(int nivel){
 						* B: 110 | buraco
 						* R: 101 | rachadura
 						* V: ??? | vazio */
-						if(!cR && !cG && cB)
-						{
+						if(!cR && !cG && cB){
 							 nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
 							 jog.instanciar('J',i, j/3, yBase,(GLMmodel *) modelCube);
 						}
-						else if( cR && !cG && !cB) nivel2[i][idx].instanciar('I',i, j/3, yBase,(GLMmodel *) modelOutro1);
+						else if( cR && !cG && !cB){
+							nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelOutro1);
+							ini.instanciar('I',i, j/3, yBase,(GLMmodel *) modelOutro1);
+						}
 						else if(!cR &&  cG && !cB) nivel2[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelCube);
 						else if( cR &&  cG && !cB) nivel2[i][idx].instanciar('B',i, j/3, yBase,(GLMmodel *) modelOutro2);
 						else if( cR && !cG &&  cB) nivel2[i][idx].instanciar('R',i, j/3, yBase,(GLMmodel *) modelSphere);
@@ -134,6 +137,7 @@ void addObjetos() {
 	addObjetosNivel(1);
 	addObjetosNivel(2);
 	jog.render();
+	ini.render();
 
 }
 
@@ -285,9 +289,9 @@ void updateState() {
 		if(nivel2[x][y].tipo != 'V' && !nivel1[nivel2[x][y].x][nivel2[x][y].y].ativo) // Verifica se elemento de nivel 2 está
 			nivel2[x][y].emQueda = true;																								// em cima de um elemento válido do nível 1
 	}
-	// Jogoador
-	jog.verificaJogador(nivel2);
-	if(jog.tipo != 'V' && !nivel1[jog.x][jog.y].ativo) 												// TODO: unificar com função de cima
+	// Jogaador
+	jog.updateJogador(nivel2);
+	if(!nivel1[jog.x][jog.y].ativo) 												// TODO: unificar com função de cima
 		jog.emQueda = true;
 	// TODO: colocar isso dentro da função verificaJogador() ou update()!!!!
 	int xbur,ybur;
@@ -295,6 +299,8 @@ void updateState() {
 		jog.setLock(0.03f);
 		criaRachadura(xbur,ybur,jog.direcao);
 	}
+	// Inimigos
+	ini.updateInimigo(nivel1,nivel2,jog);
 
 	if(emTeste){
 		for(i=0;i<350;i++){

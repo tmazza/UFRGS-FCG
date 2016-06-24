@@ -8,7 +8,7 @@
 
 Camera::Camera(){
   this->trocaPressed = false;
-  this->visualizacao=0;
+  this->visualizacao=3;
   this->lock = 0.0f;
 }
 

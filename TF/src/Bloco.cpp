@@ -23,6 +23,7 @@ Bloco::Bloco(){
   this->andaPressed = this->voltaPressed = this->giraEsqPressed = this->giraDirPressed = false;
   this->direcao = 0; // 0=norte|1=oeste|2=sul|3=lest | sentido horario
 
+  this->mudarDirecao = 0;
 }
 
 void Bloco::render(){
@@ -61,7 +62,7 @@ void Bloco::verificaQueda(){
 /**
  * Controle movimentos e interações do jogados
  */
-void Bloco::verificaJogador(Bloco vizinho[20][20]){
+void Bloco::updateJogador(Bloco n2[20][20]){
 	this->update();
   float novoX = this->posx,novoZ = this->posz;
   float step = 0.01f;
@@ -76,7 +77,7 @@ void Bloco::verificaJogador(Bloco vizinho[20][20]){
     if(this->direcao == 2) novoZ += step;
     if(this->direcao == 3) novoX -= step;
   }
-  if(jogadorTemColisao(novoX,novoZ,vizinho)){
+  if(!jogadorTemColisao(novoX,novoZ,n2)){
     this->posx = novoX;
     this->posz = novoZ;
   }
@@ -90,6 +91,53 @@ void Bloco::verificaJogador(Bloco vizinho[20][20]){
   this->x = (this->posx+4.2)/0.4;
   this->y = (this->posz+4.2)/0.4;
 
+}
+
+/**
+ * Realiza movimentação de bloco do tipo inimigo
+ */
+void Bloco::updateInimigo(Bloco n1[20][20],Bloco n2[20][20],Bloco jog){
+  this->update();
+  if(this->ativo){
+    float step = 0.023f;
+    float novoPosX = this->posx,novoPosZ = this->posz;
+    int novox,novoy;
+
+    if(this->mudarDirecao == 0 && jog.pontoDentro(this->posx,this->posz,1.8)){
+      if(jog.y > this->y){
+        this->direcao = jog.x > this->x ? 0 : 1;
+      } else {
+        this->direcao = jog.x > this->x ? 3 : 2;
+      }
+    } else {
+      this->mudarDirecao == 1 ? this->giraParaEsquerda() : this->giraParaDireita();
+      this->mudarDirecao = 0;
+    }
+
+    if(this->direcao == 0) novoPosZ += step;
+    if(this->direcao == 1) novoPosX -= step;
+    if(this->direcao == 2) novoPosZ -= step;
+    if(this->direcao == 3) novoPosX += step;
+
+    novox = (novoPosX+4.2)/0.4;
+    novoy = (novoPosZ+4.2)/0.4;
+    int random = rand() % 16;
+    if(random == 1 || random == 2
+      || !n1[novox][novoy].ativo // Buraco no nivel 1
+      || novoPosZ > 3.8f || novoPosZ < -4.2f || novoPosX > 3.8f || novoPosX < -4.2f // Limites do mapa
+      || this->inimigoTemColisao(novoPosX,novoPosZ,n2) // Colisão com bloco
+    ){
+      this->mudarDirecao = random == 1 ? 1 : 2;
+      printf("giro\n");
+    } else {
+      this->posx = novoPosX;
+      this->posz = novoPosZ;
+      this->x = novox;
+      this->y = novoy;
+    }
+
+
+  }
 }
 
 /**
@@ -115,8 +163,20 @@ bool Bloco::jogadorTemColisao(float x,float z,Bloco v[20][20]){
   for(i=0;i<20;i++)
     for(j=0;j<20;j++)
       if(v[i][j].id != this->id && (v[i][j].tipo == 'P' || v[i][j].tipo == 'I') && v[i][j].pontoDentro(x,z,0.38))
-        return false;
-  return true;
+        return true;
+  return false;
+}
+
+/**
+ * Verifica se existe colisão com algum elemento do cenario
+ */
+bool Bloco::inimigoTemColisao(float x,float z,Bloco n2[20][20]){
+  int i,j;
+  for(i=0;i<20;i++)
+    for(j=0;j<20;j++)
+      if(n2[i][j].id != this->id && (n2[i][j].tipo == 'P' || n2[i][j].tipo == 'B' || n2[i][j].tipo == 'R') && n2[i][j].pontoDentro(x,z,0.38))
+        return true;
+  return false;
 }
 
 /**
