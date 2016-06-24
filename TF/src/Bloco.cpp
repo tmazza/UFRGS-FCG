@@ -99,7 +99,7 @@ void Bloco::updateJogador(Bloco n2[20][20]){
 void Bloco::updateInimigo(Bloco n1[20][20],Bloco n2[20][20],Bloco jog){
   this->update();
   if(this->ativo){
-    float step = 0.023f;
+    float step = 0.1f;
     float novoPosX = this->posx,novoPosZ = this->posz;
     int novox,novoy;
 
@@ -109,7 +109,7 @@ void Bloco::updateInimigo(Bloco n1[20][20],Bloco n2[20][20],Bloco jog){
       } else {
         this->direcao = jog.x > this->x ? 3 : 2;
       }
-    } else {
+    } else if (this->mudarDirecao != 0) {
       this->mudarDirecao == 1 ? this->giraParaEsquerda() : this->giraParaDireita();
       this->mudarDirecao = 0;
     }
@@ -121,20 +121,23 @@ void Bloco::updateInimigo(Bloco n1[20][20],Bloco n2[20][20],Bloco jog){
 
     novox = (novoPosX+4.2)/0.4;
     novoy = (novoPosZ+4.2)/0.4;
+
     int random = rand() % 16;
     if(random == 1 || random == 2
-      || !n1[novox][novoy].ativo // Buraco no nivel 1
+      || n1[novox][novoy].tipo == 'V' // Buraco no nivel 1
       || novoPosZ > 3.8f || novoPosZ < -4.2f || novoPosX > 3.8f || novoPosX < -4.2f // Limites do mapa
       || this->inimigoTemColisao(novoPosX,novoPosZ,n2) // Colisão com bloco
     ){
       this->mudarDirecao = random == 1 ? 1 : 2;
-      printf("giro\n");
     } else {
       this->posx = novoPosX;
       this->posz = novoPosZ;
       this->x = novox;
       this->y = novoy;
     }
+
+    if(!n1[this->x][this->y].ativo)
+      this->emQueda = true;
 
 
   }
