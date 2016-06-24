@@ -50,7 +50,7 @@ int mouseLastY = 0;
 bool emTeste = false;
 bool spacePressed = false;
 
-float planeSize = 100.0f;
+float planeSize = 10.0f;
 int xQuads = 40;
 int zQuads = 40;
 float backgrundColor[4] = {0.0f,0.0f,0.0f,1.0f};
@@ -194,30 +194,26 @@ void setWindow() {
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(cam.x,cam.y,cam.z,
-		cam.x + sin(cam.roty*PI/180),cam.y + cos(cam.rotx*PI/180),cam.z -cos(cam.roty*PI/180),
-		0.0,1.0,0.0);
 }
 
 /**
 Atualiza a posi��o e orienta��o da camera
 */
 void updateCam() {
-
-	// Em 1º pessoal
-	gluLookAt(cam.x,cam.y,cam.z,
-		cam.x + sin(cam.roty*PI/180),cam.y + cos(cam.rotx*PI/180),cam.z -cos(cam.roty*PI/180),
+	float somax=0.0,somaz=0.0;
+	if(jog.direcao == 0) somaz=-1.0;
+	if(jog.direcao == 1) somax=+1.0;
+	if(jog.direcao == 2) somaz=+1.0;
+	if(jog.direcao == 3) somax=-1.0;
+	// Em 2º pessoa
+	gluLookAt(jog.posx+somax,jog.posy+0.5,jog.posz+somaz,
+		jog.posx,jog.posy,jog.posz,
 		0.0,1.0,0.0);
 
 	// Camera aerea
-	// gluLookAt(0.0,6.0,6.0,
-	// 	cam.x + sin(cam.roty*PI/180),cam.y + cos(cam.rotx*PI/180),cam.z -cos(cam.roty*PI/180),
+	// gluLookAt(0.0,11.0,0.0,
+	// 	0.0,0.0,0.1,
 	// 	0.0,1.0,0.0);
-
-  GLfloat light_position1[] = {cam.x, cam.y, cam.z, 1.0 };
-  glLightfv(GL_LIGHT0, GL_POSITION, light_position1);
-
-
 }
 
 void initLight() {
@@ -228,7 +224,7 @@ void initLight() {
 	GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat light_position1[] = {0.0, 0.0, 0.0, 1.0 };
-  GLfloat spotlight_position1[] = {0.0, 0.0, 0.0, 0.0 };
+  GLfloat spotlight_position1[] = {10.0, 40.0, 10.0, 1.0 };
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
@@ -327,7 +323,6 @@ void updateState() {
 		criaRachadura(xbur,ybur,jog.direcao);
 	}
 
-
 	if(emTeste){
 		for(i=0;i<350;i++){
 			nivel1[i/20][i%20].emQueda = true;
@@ -369,14 +364,10 @@ void onMouseMove(int x, int y) {
 Mouse move with no button pressed event handler
 */
 void onMousePassiveMove(int x, int y) {
-	cam.roty += (x - mouseLastX);
-	cam.rotx -= (y - mouseLastY);
-	if (cam.rotx < -128.0)
-		cam.rotx = -128.0;
-	if (cam.rotx > -45.0)
-		cam.rotx = -45.0;
-	mouseLastX = x;
-	mouseLastY = y;
+	// varix = (x - mouseLastX);
+	// variy -= (y - mouseLastY);
+	// mouseLastX = x;
+	// mouseLastY = y;
 }
 
 /**
@@ -395,7 +386,6 @@ void onKeyDown(unsigned char key, int x, int y) {
 		case 'd': jog.giraDirPressed = true; break;
 
 		case 't': emTeste = true; break;
-
 		default: break;
 	}
 	//glutPostRedisplay();
@@ -418,7 +408,6 @@ void onKeyUp(unsigned char key, int x, int y) {
 		case 27: exit(0); break;
 
 		case 't': emTeste = false; break;
-
 		default: break;
 	}
 	//glutPostRedisplay();

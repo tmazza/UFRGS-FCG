@@ -38,9 +38,11 @@ void Bloco::render(){
  * Evento aplicados no bloco
  */
 void Bloco::update(){
-  this->verificaQueda();
-  this->controleDeQueda();
-  this->setLock(this->lock - 0.001f);
+  if(this->tipo != 'V'){
+    this->verificaQueda();
+    this->controleDeQueda();
+    this->setLock(this->lock - 0.001f);
+  }
 }
 
 /**
@@ -79,10 +81,10 @@ void Bloco::verificaJogador(Bloco vizinho[20][20]){
   }
   if (this->giraEsqPressed && !this->isLock()) {
     this->giraParaEsquerda();
-    setLock(0.07);
+    setLock(0.03);
   } else if(this->giraDirPressed && !this->isLock()){
     this->giraParaDireita();
-    setLock(0.07);
+    setLock(0.03);
   }
   this->x = (this->posx+4.2)/0.4;
   this->y = (this->posz+4.2)/0.4;
