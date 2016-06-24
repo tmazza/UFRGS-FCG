@@ -1,8 +1,13 @@
+#include "Bloco.h"
+
 class Camera {
 public:
   Camera();
-  bool frentePressed,trasPressed,upPressed,downtPressed;
-  float x,y,z;
+  bool trocaPressed;
+  float lock;
+  int visualizacao;
   void update();
-  float rotx,roty;
+  void updatePosicao(Bloco jogador);
+  bool setLock(float t);
+  bool isLock();
 };

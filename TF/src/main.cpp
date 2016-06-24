@@ -35,7 +35,6 @@ void setWindow();
 void setViewport(GLint left, GLint right, GLint bottom, GLint top);
 void updateState();
 void renderFloor();
-void updateCam();
 void criaRachadura(int x,int y,int direcao);
 
 int windowWidth = 1000;
@@ -135,12 +134,6 @@ void addObjetos() {
 	addObjetosNivel(1);
 	addObjetosNivel(2);
 	jog.render();
-	// a.modelo = (GLMmodel *) modelSphere;
-	// a.render();
-	// glPushMatrix();
-	// glTranslatef(jogador.posx,0.6,jogador.posy);
-	// glmDraw(modelSphere, GLM_SMOOTH );
-	// glPopMatrix();
 
 }
 
@@ -194,26 +187,6 @@ void setWindow() {
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-}
-
-/**
-Atualiza a posi��o e orienta��o da camera
-*/
-void updateCam() {
-	float somax=0.0,somaz=0.0;
-	if(jog.direcao == 0) somaz=-1.0;
-	if(jog.direcao == 1) somax=+1.0;
-	if(jog.direcao == 2) somaz=+1.0;
-	if(jog.direcao == 3) somax=-1.0;
-	// Em 2º pessoa
-	gluLookAt(jog.posx+somax,jog.posy+0.5,jog.posz+somaz,
-		jog.posx,jog.posy,jog.posz,
-		0.0,1.0,0.0);
-
-	// Camera aerea
-	// gluLookAt(0.0,11.0,0.0,
-	// 	0.0,0.0,0.1,
-	// 	0.0,1.0,0.0);
 }
 
 void initLight() {
@@ -275,7 +248,7 @@ void renderScene() {
  	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // limpar o depth buffer
  	glMatrixMode(GL_MODELVIEW);
  	glLoadIdentity();
- 	updateCam();
+	cam.updatePosicao(jog);
  	addObjetos();
  	renderFloor();
 }
@@ -376,10 +349,7 @@ Key press event handler
 void onKeyDown(unsigned char key, int x, int y) {
 	switch (key) {
 		case 32: spacePressed = true; break;
-		case 'o': cam.frentePressed = true; break;
-		case 'l': cam.trasPressed = true; break;
-		case 'i': cam.upPressed = true; break;
-		case 'p': cam.downtPressed = true; break;
+		case 'v': cam.trocaPressed = true; break;
 		case 'w': jog.andaPressed = true; break;
 		case 's': jog.voltaPressed = true; break;
 		case 'a': jog.giraEsqPressed = true; break;
@@ -397,10 +367,7 @@ Key release event handler
 void onKeyUp(unsigned char key, int x, int y) {
 	switch (key) {
 		case 32: spacePressed = false; break;
-		case 'o': cam.frentePressed = false;	break;
-		case 'l': cam.trasPressed = false; break;
-		case 'i': cam.upPressed = false; break;
-		case 'p': cam.downtPressed = false; break;
+		case 'v': cam.trocaPressed = false; break;
 		case 'w': jog.andaPressed = false; break;
 		case 's': jog.voltaPressed = false; break;
 		case 'a': jog.giraEsqPressed = false; break;

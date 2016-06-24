@@ -52,7 +52,8 @@ void Bloco::verificaQueda(){
   if(this->emQueda && this->posy > -2.0){
     this->posy -= this->gravidade; // Linear :D
     this->ativo = false;
-  } else if(this->posy <= -2.0){
+  } else if(this->posy <= -1.0){
+    this->emQueda = false;
     this->tipo = 'V'; // Vazio nao é renderizado | perde-se a informação de tipo
   }
 }
@@ -159,7 +160,7 @@ bool Bloco::isLock(){
 }
 
 /**
- * Bloquei atividade no bloco por 1000*t iterações.
+ * Bloqueia atividade no bloco por 1000*t iterações.
  */
 bool Bloco::setLock(float t){
   this->lock = t;

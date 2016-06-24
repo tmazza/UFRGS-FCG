@@ -1,31 +1,60 @@
 #include <stdio.h>
 #include <math.h>
+#include "Bloco.h"
 #include "Camera.h"
+#include <GL/glut.h>
 
 #define PI 3.14159265
 
 Camera::Camera(){
-  this->frentePressed = this->trasPressed = this->upPressed = this->downtPressed = false;
-  this->x = this->y = this->z = 6.0f;
-  this->rotx = this->roty = 90.0f;
+  this->trocaPressed = false;
+  this->visualizacao=0;
+  this->lock = 0.0f;
 }
 
 void Camera::update(){
-  float speedBase = 0.05;
-  if (this->frentePressed || this->trasPressed) {
-    float speedX = +speedBase * sin(this->roty*PI/180) * 2;
-    float speedZ = -speedBase * cos(this->roty*PI/180) * 2;
-    if (this->frentePressed) {
-        this->x += speedX;
-        this->z += speedZ;
-    } else if(this->trasPressed) {
-        this->x -= speedX;
-        this->z -= speedZ;
-    }
+  if(this->trocaPressed && !this->isLock()){
+    this->visualizacao+=1;
+    this->visualizacao%=3;
+    this->setLock(0.02);
   }
-  if(this->upPressed){
-    this->y += speedBase;
-  } else if(this->downtPressed) {
-    this->y -= speedBase;
+  this->setLock(this->lock - 0.001f);
+}
+
+void Camera::updatePosicao(Bloco jogador){
+  float somax=0.0,somaz=0.0;
+	if(jogador.direcao == 0) somaz=-1.0;
+	if(jogador.direcao == 1) somax=+1.0;
+	if(jogador.direcao == 2) somaz=+1.0;
+	if(jogador.direcao == 3) somax=-1.0;
+
+  if(this->visualizacao == 0) { // Em 2º pessoa
+  	gluLookAt(jogador.posx+somax,jogador.posy+0.5,jogador.posz+somaz,
+  		jogador.posx,jogador.posy,jogador.posz,
+  		0.0,1.0,0.0);
+  } else if(this->visualizacao == 1){ // Camera aerea
+  	gluLookAt(0.0,11.0,0.0,
+  		0.0,0.0,0.1,
+  		0.0,1.0,0.0);
+  } else { // 1º pessoa
+  	gluLookAt(0.0,11.0,0.0,
+  		0.0,0.0,0.1,
+  		0.0,1.0,0.0);
   }
+}
+
+/**
+ * Bloqueia atividade no bloco por 1000*t iterações.
+ */
+bool Camera::setLock(float t){
+  this->lock = t;
+  if(this->lock < 0.0f)
+    this->lock = 0.0f;
+}
+
+/**
+ * Controla se alguma ação está não finalziada no bloco.
+ */
+bool Camera::isLock(){
+  return this->lock > 0.0f;
 }
