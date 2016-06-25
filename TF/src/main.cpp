@@ -520,11 +520,11 @@ int main(int argc, char **argv) {
 
 
 	// Sub window
-	if(!partida.finalizada){
-		subWindowId = glutCreateSubWindow(mainWindowId, 0, 0,(windowWidth/4), (windowHeight/4));
-	  glutDisplayFunc(subRender);
-		subInit();
-	}
+	// if(!partida.finalizada){
+	// 	subWindowId = glutCreateSubWindow(mainWindowId, 0, 0,(windowWidth/4), (windowHeight/4));
+	//   glutDisplayFunc(subRender);
+	// 	subInit();
+	// }
 
 	glutMainLoop();
 

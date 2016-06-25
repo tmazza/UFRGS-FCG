@@ -91,13 +91,16 @@ void Bloco::updateJogador(Bloco n2[20][20],std::map<int,Bloco>* inimigos){
     setLock(0.03);
   }
 
-  if(this->empurraPressed){
+  if(this->empurraPressed && this->energiaArma > 0.0){
     empurraInimigo(inimigos);
-    setLock(0.03);
+    this->energiaArma -= 0.1;
+  } else if(this->energiaArma < 5.0){
+    this->energiaArma += 0.003;
   }
 
   this->x = (this->posx+4.2)/0.4;
   this->y = (this->posz+4.2)/0.4;
+
 
 }
 
@@ -117,7 +120,8 @@ void Bloco::empurraInimigo(std::map<int,Bloco>* inimigos){
 
   float incx=0.0,incz=0.0;
   for(it = inimigos->begin();it!=inimigos->end();++it){
-    if(it->second.pontoDentro(p1.first,p1.second,0.4) || it->second.pontoDentro(p2.first,p2.second,0.4)){
+    if(it->second.pontoDentro(p1.first,p1.second,0.4)
+       || it->second.pontoDentro(p2.first,p2.second,0.4)){
       if(this->direcao == 0){ incz = +0.1; }
       if(this->direcao == 1){ incx = -0.1; }
       if(this->direcao == 2){ incz = -0.1; }
@@ -134,7 +138,7 @@ void Bloco::empurraInimigo(std::map<int,Bloco>* inimigos){
 void Bloco::updateInimigo(int id,Bloco n1[20][20],Bloco n2[20][20],Bloco* jog,std::map<int,Bloco> inimigos){
   this->update();
   if(this->ativo && this->andando){
-    float step = 0.008f;
+    float step = 0.004f;
     float novoPosX = this->posx,novoPosZ = this->posz;
     int novox,novoy;
 

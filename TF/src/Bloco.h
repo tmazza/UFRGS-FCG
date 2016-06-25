@@ -18,7 +18,7 @@ public:
   bool andaPressed,voltaPressed,giraEsqPressed,giraDirPressed,empurraPressed;
 
   int direcao,mudarDirecao;
-  float lock;
+  float lock,energiaArma;
 
   void update();
   void verificaQueda();
