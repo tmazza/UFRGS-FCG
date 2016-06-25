@@ -148,7 +148,6 @@ void addObjetos() {
 	jog.render();
 	for (it = inimigos.begin() ; it != inimigos.end(); ++it)
 		it->second.render();
-
 }
 
 void renderFloor() {
@@ -318,19 +317,6 @@ void updateState() {
 	}
 
 }
-
-/**
- * Verifica final do jogo considerando quedas.
- * se todos inimigos cairam ou se o jogador caiu
- */
-void verificaFimDeJogo(){
-	if(jog.tipo == 'V'){ // Após animação de queda tipo é alterado para vazio
-		partida.finalizada = true;
-		partida.venceu = false;
-	}
-
-}
-
 /**
  * Tela de fim e jogo
  */
@@ -349,6 +335,29 @@ void renderFimDeJogo(){
 	}
 }
 
+
+/**
+ * Verifica final do jogo considerando quedas.
+ * se todos inimigos cairam ou se o jogador caiu
+ */
+void verificaFimDeJogo(){
+	if(jog.tipo == 'V'){ // Após animação de queda tipo é alterado para vazio
+		partida.finalizada = true;
+		partida.venceu = false;
+	} else {
+		bool allDead = true;
+		for (it = inimigos.begin() ; it != inimigos.end(); ++it){
+			printf("%d\n", it->second.ativo);
+			if(it->second.tipo ==  'I')
+				allDead = false;
+		}
+		printf("ALL DEAD? %d\n", allDead);
+		 if(allDead){
+			partida.finalizada = partida.venceu = true;
+		 }
+	}
+}
+
 /**
 Render scene
 */
@@ -357,8 +366,8 @@ void mainRender() {
 		renderFimDeJogo();
 	} else {
 		updateState();
-	  verificaFimDeJogo();
 		renderScene();
+		verificaFimDeJogo();
 	}
 	glFlush();
 	glutPostRedisplay();
