@@ -204,19 +204,18 @@ void setWindow() {
 }
 
 void initLight() {
-  glEnable( GL_LIGHTING );
+	glEnable( GL_LIGHTING );
 	glEnable( GL_LIGHT0 );
 
 	GLfloat light_ambient[] = { backgrundColor[0], backgrundColor[1], backgrundColor[2], backgrundColor[3] };
 	GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat light_position1[] = {0.0, 0.0, 0.0, 1.0 };
-  GLfloat spotlight_position1[] = {10.0, 40.0, 10.0, 1.0 };
+	GLfloat light_position1[] = {0.0, 1.0, 0.0, 1.0 };
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-	glLightfv(GL_LIGHT0, GL_POSITION, spotlight_position1);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position1);
 
 }
 

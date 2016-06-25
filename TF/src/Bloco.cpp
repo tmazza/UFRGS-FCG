@@ -177,11 +177,10 @@ void Bloco::updateInimigo(int id,Bloco n1[20][20],Bloco n2[20][20],Bloco* jog,st
   } else if(!this->andando){
     this->andando = true;
   }
-
-  // Testa colisão com jogador
-  if(jog->pontoDentro(this->posx,this->posz,0.4))
-    jog->tipo = 'V';
-    
+  if(this->ativo) {
+    if(jog->pontoDentro(this->posx,this->posz,0.4))    // Testa colisão com jogador
+      jog->tipo = 'V';
+  }
 }
 
 /**
