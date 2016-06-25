@@ -77,6 +77,11 @@ void addObjetosNivel(int nivel){
 	if(nivel == 2){
 		filename[8] = 'i';
 		yBase += 0.4f;
+	} else if(nivel == 3) {
+		filename[8] = 'j';
+		yBase += 1.0f;
+	} else if(nivel == 4) {
+		filename[8] = 'k';
 	}
 	int i;
 	FILE* f = fopen(filename, "rb");
@@ -108,7 +113,7 @@ void addObjetosNivel(int nivel){
 							if(!cR &&  cG && !cB) nivel1[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelCube);
 							else nivel1[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
 							nivel1[i][idx].render();
-					} else {
+					} else if(nivel == 2) {
 						if(!cR && !cG && cB){ // J: 001 | jogador
 							 nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
 							 jog.instanciar('J',i, j/3, yBase,(GLMmodel *) modelCube);
@@ -125,6 +130,11 @@ void addObjetosNivel(int nivel){
 
 						nivel2[i][idx].id = count;
 						nivel2[i][idx].render();
+					} else if(nivel == 3 || nivel == 4){
+						if(!cR &&  !cG && !cB) nivel1[i][idx].metamorfisa('V',(GLMmodel *) modelCube);
+						else nivel1[i][idx].metamorfisa('P',(GLMmodel *) modelCube);
+						nivel1[i][idx].posy += 0.0005f;
+						nivel1[i][idx].render();
 					}
 					count++;
 			}
@@ -304,22 +314,52 @@ void updateState() {
 		it->second.updateInimigo(it->first,nivel1,nivel2,jog,inimigos);
 
 	if(emTeste){
-		for(i=0;i<350;i++){
-			nivel1[i/20][i%20].emQueda = true;
-			// nivel2[i/20][i%20].emQueda = true;
-		}
-		// printf("JOGO: %d, %d\n",jog->x,jog->y);
-		// printf("\n\n");
+		nivel1[rand()%20][rand()%20].emQueda = true;
 	}
 
+}
+
+/**
+ * Verifica final do jogo considerando quedas.
+ * se todos inimigos cairam ou se o jogador caiu
+ */
+void verificaFimDeJogo(){
+	if(jog.tipo == 'V'){ // Após animação de queda tipo é alterado para vazio
+		partida.finalizada = true;
+		partida.venceu = false;
+	}
+
+}
+
+/**
+ * Tela de fim e jogo
+ */
+void renderFimDeJogo(){
+	glClearColor(backgrundColor[0],backgrundColor[1],backgrundColor[2],backgrundColor[3]);
+ 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // limpar o depth buffer
+ 	glMatrixMode(GL_MODELVIEW);
+ 	glLoadIdentity();
+	cam.visualizacao=3;
+	cam.updatePosicao(jog);
+ 	renderFloor();
+	if(partida.venceu){
+		addObjetosNivel(4);
+	} else {
+		addObjetosNivel(3);
+	}
 }
 
 /**
 Render scene
 */
 void mainRender() {
-	updateState();
-	renderScene();
+	if(partida.finalizada){
+		renderFimDeJogo();
+	} else {
+		updateState();
+	  verificaFimDeJogo();
+		renderScene();
+	}
 	glFlush();
 	glutPostRedisplay();
 	usleep(1000);

@@ -9,6 +9,10 @@
 #define COR_NOVA1 2
 #define COR_NOVA2 3
 
+Partida::Partida(){
+  this->finalizada = this->venceu = false;
+}
+
 void Partida::aplicaCorte(Bloco *n1,Bloco *n2){
   int x,y;
   bool findStart = false;
