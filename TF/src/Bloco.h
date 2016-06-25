@@ -37,7 +37,7 @@ public:
   void instanciar(char tipo,int x, int y, float posVertical, void *modelo);
   void resetPosicao(int x, int y, float posVertical);
 
-  void updateInimigo(int id,Bloco n1[20][20],Bloco n2[20][20],Bloco jog,std::map<int,Bloco> inimigos);
+  void updateInimigo(int id,Bloco n1[20][20],Bloco n2[20][20],Bloco *jog,std::map<int,Bloco> inimigos);
   bool inimigoTemColisao(float x,float z,Bloco n2[20][20]);
   bool colisaoComOutroInimigo(int id,std::map<int,Bloco> inimigos);
 

@@ -325,7 +325,7 @@ void updateState() {
 	}
 	// Inimigos
 	for (it = inimigos.begin() ; it != inimigos.end(); ++it)
-		it->second.updateInimigo(it->first,nivel1,nivel2,jog,inimigos);
+		it->second.updateInimigo(it->first,nivel1,nivel2,&jog,inimigos);
 
 	if(emTeste){
 		nivel1[rand()%20][rand()%20].emQueda = true;

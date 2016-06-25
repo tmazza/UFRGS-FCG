@@ -131,18 +131,18 @@ void Bloco::empurraInimigo(std::map<int,Bloco>* inimigos){
 /**
  * Realiza movimentação de bloco do tipo inimigo
  */
-void Bloco::updateInimigo(int id,Bloco n1[20][20],Bloco n2[20][20],Bloco jog,std::map<int,Bloco> inimigos){
+void Bloco::updateInimigo(int id,Bloco n1[20][20],Bloco n2[20][20],Bloco* jog,std::map<int,Bloco> inimigos){
   this->update();
   if(this->ativo && this->andando){
     float step = 0.008f;
     float novoPosX = this->posx,novoPosZ = this->posz;
     int novox,novoy;
 
-    if(this->mudarDirecao == 0 && jog.pontoDentro(this->posx,this->posz,1.8)){
-      if(jog.y > this->y){
-        this->direcao = jog.x > this->x ? 0 : 1;
+    if(this->mudarDirecao == 0 && jog->pontoDentro(this->posx,this->posz,1.8)){
+      if(jog->y > this->y){
+        this->direcao = jog->x > this->x ? 0 : 1;
       } else {
-        this->direcao = jog.x > this->x ? 3 : 2;
+        this->direcao = jog->x > this->x ? 3 : 2;
       }
     } else if (this->mudarDirecao != 0) {
       this->mudarDirecao == 1 ? this->giraParaEsquerda() : this->giraParaDireita();
@@ -177,6 +177,11 @@ void Bloco::updateInimigo(int id,Bloco n1[20][20],Bloco n2[20][20],Bloco jog,std
   } else if(!this->andando){
     this->andando = true;
   }
+
+  // Testa colisão com jogador
+  if(jog->pontoDentro(this->posx,this->posz,0.4))
+    jog->tipo = 'V';
+    
 }
 
 /**
