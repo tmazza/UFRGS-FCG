@@ -8,6 +8,7 @@ public:
   int visualizacao;
   void update();
   void updatePosicao(Bloco jogador);
+  void setViewAerea();
   bool setLock(float t);
   bool isLock();
 };

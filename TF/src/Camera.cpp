@@ -8,7 +8,7 @@
 
 Camera::Camera(){
   this->trocaPressed = false;
-  this->visualizacao=3;
+  this->visualizacao=2;
   this->lock = 0.0f;
 }
 
@@ -31,15 +31,22 @@ void Camera::updatePosicao(Bloco jogador){
   	gluLookAt(jogador.posx+somax,jogador.posy+0.5,jogador.posz+somaz,
   		jogador.posx,jogador.posy,jogador.posz,
   		0.0,1.0,0.0);
-  } else if(this->visualizacao == 1){ // Camera aerea
+  } else if(this->visualizacao == 1){ // 1º pessoa
     gluLookAt(jogador.posx-(somax/10),jogador.posy+0.0,jogador.posz-(somaz/10),
       jogador.posx-somax,jogador.posy,jogador.posz-somaz,
       0.0,1.0,0.0);
-  } else { // 1º pessoa
-    gluLookAt(0.0,11.0,0.0,
-      0.0,0.0,0.1,
-      0.0,1.0,0.0);
+  } else {  // Camera aerea
+    this->setViewAerea();
   }
+}
+
+/**
+ * visualizacao aerea
+ */
+void Camera::setViewAerea(){
+  gluLookAt(0.0,11.0,0.0,
+    0.0,0.0,0.1,
+    0.0,1.0,0.0);
 }
 
 /**

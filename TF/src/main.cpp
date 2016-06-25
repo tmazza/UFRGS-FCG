@@ -43,6 +43,7 @@ int windowHeight = 600;
 int windowXPos = 100;
 int windowYPos = 150;
 int mainWindowId = 0;
+int subWindowId = 0;
 
 int mouseLastX = 0;
 int mouseLastY = 0;
@@ -247,6 +248,20 @@ void mainInit() {
 
 }
 
+void subInit(){
+	glClearColor(1.0,1.0,1.0,0.0);
+	glColor3f(0.0f,0.0f,0.0f);
+	setWindow();
+	setViewport(0, windowWidth, 0, windowHeight);
+
+	// habilita o z-buffer
+	glEnable(GL_DEPTH_TEST);
+
+	initModel();
+	initLight();
+}
+
+
 void initModel() {
 	printf("Loading models.. \n");
 	C3DObject_Load_New("res/ball.obj",&modelSphere);
@@ -346,15 +361,11 @@ void verificaFimDeJogo(){
 		partida.venceu = false;
 	} else {
 		bool allDead = true;
-		for (it = inimigos.begin() ; it != inimigos.end(); ++it){
-			printf("%d\n", it->second.ativo);
+		for (it = inimigos.begin() ; it != inimigos.end(); ++it)
 			if(it->second.tipo ==  'I')
 				allDead = false;
-		}
-		printf("ALL DEAD? %d\n", allDead);
-		 if(allDead){
+		 if(allDead)
 			partida.finalizada = partida.venceu = true;
-		 }
 	}
 }
 
@@ -457,6 +468,24 @@ void mainIdle() {
 	glutPostRedisplay();
 }
 
+void subRender(){
+	glutSetWindow(subWindowId);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+
+	glClearColor(backgrundColor[0],backgrundColor[1],backgrundColor[2],backgrundColor[3]);
+ 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // limpar o depth buffer
+ 	glMatrixMode(GL_MODELVIEW);
+ 	glLoadIdentity();
+	cam.setViewAerea();
+ 	addObjetos();
+ 	renderFloor();
+
+	glFlush();
+	glutPostRedisplay();
+}
+
+
 int main(int argc, char **argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH);
@@ -484,8 +513,15 @@ int main(int argc, char **argv) {
 	*/
 	glutKeyboardFunc(onKeyDown);
 	glutKeyboardUpFunc(onKeyUp);
-
 	mainInit();
+
+
+	// Sub window
+	if(!partida.finalizada){
+		subWindowId = glutCreateSubWindow(mainWindowId, 0, 0,(windowWidth/4), (windowHeight/4));
+	  glutDisplayFunc(subRender);
+		subInit();
+	}
 
 	glutMainLoop();
 
