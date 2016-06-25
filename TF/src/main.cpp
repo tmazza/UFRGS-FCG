@@ -60,6 +60,7 @@ GLMmodel *modelSphere;
 GLMmodel *modelOutro1;
 GLMmodel *modelOutro2;
 GLMmodel *modelCube;
+GLMmodel *modelCrate;
 
 int count;
 Camera cam;
@@ -117,7 +118,9 @@ void addObjetosNivel(int nivel){
 					} else if(nivel == 2) {
 						if(!cR && !cG && cB){ // J: 001 | jogador
 							 nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
-							 jog.instanciar('J',i, j/3, yBase,(GLMmodel *) modelCube);
+							 jog.comTextura = true;
+							 
+							 jog.instanciar('J',i, j/3, yBase,(GLMmodel *) modelCrate);
 						}
 						else if( cR && !cG && !cB){ // I: 100 | inimigo
 							nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelOutro1);
@@ -267,6 +270,8 @@ void initModel() {
 	C3DObject_Load_New("res/porsche.obj",&modelOutro1);
 	C3DObject_Load_New("res/dolphins.obj",&modelOutro2);
 	C3DObject_Load_New("res/cube.obj",&modelCube);
+	C3DObject_Load_New("res/Crate1.obj",&modelCrate);
+
 	printf("Models ok. \n \n \n");
 }
 

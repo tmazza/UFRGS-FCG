@@ -16,7 +16,7 @@ public:
   bool emQueda,ativo,inicializado,andando;
   // Blocos com movimento
   bool andaPressed,voltaPressed,giraEsqPressed,giraDirPressed,empurraPressed;
-
+  bool comTextura;
   int direcao,mudarDirecao;
   float lock,energiaArma;
 

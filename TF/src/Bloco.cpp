@@ -19,6 +19,7 @@ Bloco::Bloco(){
   this->ativo = true;
   this->andando = true;
   this->gravidade = 0.01;
+  this->comTextura = false;
   this->lock = 0.0f;
 
   // Usado para o jogador
@@ -32,7 +33,12 @@ void Bloco::render(){
   if(this->tipo != 'V'){
     glPushMatrix();
     glTranslatef(this->posx,this->posy,this->posz);
-    glmDraw((GLMmodel *) this->modelo, GLM_SMOOTH);
+
+    if(this->comTextura){
+      glmDraw((GLMmodel *) this->modelo, GLM_SMOOTH | GLM_MATERIAL | GLM_TEXTURE);
+    } else {
+      glmDraw((GLMmodel *) this->modelo, GLM_SMOOTH);
+    }
     glPopMatrix();
   }
 }
