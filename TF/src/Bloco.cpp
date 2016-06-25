@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <utility>
 #include "Bloco.h"
 #include <GL/glut.h>
 #include "glm.h"
@@ -16,11 +17,12 @@ Bloco::Bloco(){
   this->emQueda = false;
   this->inicializado = false;
   this->ativo = true;
+  this->andando = true;
   this->gravidade = 0.01;
   this->lock = 0.0f;
 
   // Usado para o jogador
-  this->andaPressed = this->voltaPressed = this->giraEsqPressed = this->giraDirPressed = false;
+  this->andaPressed = this->voltaPressed = this->giraEsqPressed = this->giraDirPressed = this->empurraPressed = false;
   this->direcao = 0; // 0=norte|1=oeste|2=sul|3=lest | sentido horario
 
   this->mudarDirecao = 0;
@@ -62,7 +64,7 @@ void Bloco::verificaQueda(){
 /**
  * Controle movimentos e interações do jogados
  */
-void Bloco::updateJogador(Bloco n2[20][20]){
+void Bloco::updateJogador(Bloco n2[20][20],std::map<int,Bloco>* inimigos){
 	this->update();
   float novoX = this->posx,novoZ = this->posz;
   float step = 0.01f;
@@ -88,18 +90,51 @@ void Bloco::updateJogador(Bloco n2[20][20]){
     this->giraParaDireita();
     setLock(0.03);
   }
+
+  if(this->empurraPressed){
+    empurraInimigo(inimigos);
+    setLock(0.03);
+  }
+
   this->x = (this->posx+4.2)/0.4;
   this->y = (this->posz+4.2)/0.4;
 
 }
 
 /**
+ * Verifica se tem um inimigo a até 2 casas de distância e empurra para
+ * posicao do jogador + duas casas
+ */
+void Bloco::empurraInimigo(std::map<int,Bloco>* inimigos){
+  std::map<int,Bloco>::iterator it;
+  std::pair< float, float > p1;
+  std::pair< float, float > p2;
+  // A primeira e a segunda casa a frente do jogador
+  if(this->direcao == 0){ p1 = std::make_pair(this->posx,this->posz+0.4); p2 = std::make_pair(this->posx,this->posz+0.8); }
+  if(this->direcao == 1){ p1 = std::make_pair(this->posx-0.4,this->posz); p2 = std::make_pair(this->posx-0.8,this->posz); }
+  if(this->direcao == 2){ p1 = std::make_pair(this->posx,this->posz-0.4); p2 = std::make_pair(this->posx,this->posz-0.8); }
+  if(this->direcao == 3){ p1 = std::make_pair(this->posx+0.4,this->posz); p2 = std::make_pair(this->posx+0.8,this->posz); }
+
+  float incx=0.0,incz=0.0;
+  for(it = inimigos->begin();it!=inimigos->end();++it){
+    if(it->second.pontoDentro(p1.first,p1.second,0.4) || it->second.pontoDentro(p2.first,p2.second,0.4)){
+      if(this->direcao == 0){ incz = +0.01; }
+      if(this->direcao == 1){ incx = -0.01; }
+      if(this->direcao == 2){ incz = -0.01; }
+      if(this->direcao == 3){ incx = +0.01; }
+      it->second.posx += incx;
+      it->second.posz += incz;
+    }
+  }
+}
+
+/**
  * Realiza movimentação de bloco do tipo inimigo
  */
-void Bloco::updateInimigo(Bloco n1[20][20],Bloco n2[20][20],Bloco jog){
+void Bloco::updateInimigo(int id,Bloco n1[20][20],Bloco n2[20][20],Bloco jog,std::map<int,Bloco> inimigos){
   this->update();
-  if(this->ativo){
-    float step = 0.1f;
+  if(this->ativo && this->andando){
+    float step = 0.008f;
     float novoPosX = this->posx,novoPosZ = this->posz;
     int novox,novoy;
 
@@ -122,11 +157,12 @@ void Bloco::updateInimigo(Bloco n1[20][20],Bloco n2[20][20],Bloco jog){
     novox = (novoPosX+4.2)/0.4;
     novoy = (novoPosZ+4.2)/0.4;
 
-    int random = rand() % 16;
+    int random = rand() % 64;
     if(random == 1 || random == 2
       || n1[novox][novoy].tipo == 'V' // Buraco no nivel 1
       || novoPosZ > 3.8f || novoPosZ < -4.2f || novoPosX > 3.8f || novoPosX < -4.2f // Limites do mapa
       || this->inimigoTemColisao(novoPosX,novoPosZ,n2) // Colisão com bloco
+      // || this->colisaoComOutroInimigo(id,inimigos) // TODO: colisão entre inimigos. colisaoComOutroInimigo()
     ){
       this->mudarDirecao = random == 1 ? 1 : 2;
     } else {
@@ -138,9 +174,22 @@ void Bloco::updateInimigo(Bloco n1[20][20],Bloco n2[20][20],Bloco jog){
 
     if(!n1[this->x][this->y].ativo)
       this->emQueda = true;
-
-
+  } else if(!this->andando){
+    this->andando = true;
   }
+}
+
+/**
+ * Colisao entre si
+ */
+bool Bloco::colisaoComOutroInimigo(int id,std::map<int,Bloco> inimigos){
+  std::map<int,Bloco>::iterator it;
+  for(it = inimigos.begin() ;it != inimigos.end();++it)
+    if(it->first > id && it->second.pontoDentro(this->posx,this->posz,0.4)){
+      it->second.andando = false;
+      return true;
+    }
+  return false;
 }
 
 /**

@@ -290,7 +290,7 @@ void updateState() {
 			nivel2[x][y].emQueda = true;																								// em cima de um elemento válido do nível 1
 	}
 	// Jogaador
-	jog.updateJogador(nivel2);
+	jog.updateJogador(nivel2,&inimigos);
 	if(!nivel1[jog.x][jog.y].ativo) 												// TODO: unificar com função de cima
 		jog.emQueda = true;
 	// TODO: colocar isso dentro da função verificaJogador() ou update()!!!!
@@ -301,7 +301,7 @@ void updateState() {
 	}
 	// Inimigos
 	for (it = inimigos.begin() ; it != inimigos.end(); ++it)
-		it->second.updateInimigo(nivel1,nivel2,jog);
+		it->second.updateInimigo(it->first,nivel1,nivel2,jog,inimigos);
 
 	if(emTeste){
 		for(i=0;i<350;i++){
@@ -361,6 +361,7 @@ void onKeyDown(unsigned char key, int x, int y) {
 		case 's': jog.voltaPressed = true; break;
 		case 'a': jog.giraEsqPressed = true; break;
 		case 'd': jog.giraDirPressed = true; break;
+		case 'f': jog.empurraPressed = true; break;
 
 		case 't': emTeste = true; break;
 		default: break;
@@ -379,6 +380,7 @@ void onKeyUp(unsigned char key, int x, int y) {
 		case 's': jog.voltaPressed = false; break;
 		case 'a': jog.giraEsqPressed = false; break;
 		case 'd': jog.giraDirPressed = false; break;
+		case 'f': jog.empurraPressed = false; break;
 		case 27: exit(0); break;
 
 		case 't': emTeste = false; break;
