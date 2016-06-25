@@ -134,7 +134,7 @@ void addObjetosNivel(int nivel){
 					} else if(nivel == 3 || nivel == 4){
 						if(!cR &&  !cG && !cB) nivel1[i][idx].metamorfisa('V',(GLMmodel *) modelCube);
 						else nivel1[i][idx].metamorfisa('P',(GLMmodel *) modelCube);
-						nivel1[i][idx].posy += 0.0005f;
+						nivel1[i][idx].posy = yBase;
 						nivel1[i][idx].render();
 					}
 					count++;
@@ -347,6 +347,10 @@ void renderFimDeJogo(){
 		addObjetosNivel(4);
 	} else {
 		addObjetosNivel(3);
+
+//		nivel1[rand()%20][rand()%20].emQueda = true;
+
+
 	}
 }
 

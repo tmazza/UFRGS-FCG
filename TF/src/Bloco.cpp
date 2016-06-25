@@ -52,7 +52,7 @@ void Bloco::update(){
  * Caso objeto esteja em queda, realiza animação e esconde bloco;
  */
 void Bloco::verificaQueda(){
-  if(this->emQueda && this->posy > -2.0){
+  if(this->emQueda && this->posy > -1.0){
     this->posy -= this->gravidade; // Linear :D
     this->ativo = false;
   } else if(this->posy <= -1.0){
@@ -118,10 +118,10 @@ void Bloco::empurraInimigo(std::map<int,Bloco>* inimigos){
   float incx=0.0,incz=0.0;
   for(it = inimigos->begin();it!=inimigos->end();++it){
     if(it->second.pontoDentro(p1.first,p1.second,0.4) || it->second.pontoDentro(p2.first,p2.second,0.4)){
-      if(this->direcao == 0){ incz = +0.01; }
-      if(this->direcao == 1){ incx = -0.01; }
-      if(this->direcao == 2){ incz = -0.01; }
-      if(this->direcao == 3){ incx = +0.01; }
+      if(this->direcao == 0){ incz = +0.1; }
+      if(this->direcao == 1){ incx = -0.1; }
+      if(this->direcao == 2){ incz = -0.1; }
+      if(this->direcao == 3){ incx = +0.1; }
       it->second.posx += incx;
       it->second.posz += incz;
     }
