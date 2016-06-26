@@ -367,6 +367,35 @@ void updateState() {
 	}
 
 }
+
+void animacaoFinal(){
+	for(int i=0;i<400;i++){
+		nivel1[i/20][i%20].tipo = 'V';
+		nivel2[i/20][i%20].tipo = 'V';
+	}
+}
+
+/**
+ * Verifica final do jogo considerando quedas.
+ * se todos inimigos cairam ou se o jogador caiu
+ */
+void verificaFimDeJogo(){
+	if(jog.tipo == 'V'){ // Após animação de queda tipo é alterado para vazio
+		partida.finalizada = true;
+		partida.venceu = false;
+		animacaoFinal();
+	} else {
+		bool allDead = true;
+		for (it = inimigos.begin() ; it != inimigos.end(); ++it)
+			if(it->second.tipo ==  'I')
+				allDead = false;
+		 if(allDead){
+			partida.finalizada = partida.venceu = true;
+			animacaoFinal();
+		}
+	}
+}
+
 /**
  * Tela de fim e jogo
  */
@@ -378,35 +407,12 @@ void renderFimDeJogo(){
 	cam.visualizacao=3;
 	cam.updatePosicao(jog);
  	renderFloor();
-	if(partida.venceu){
+	if(partida.venceu)
 		addObjetosNivel(4);
-	} else {
+	else
 		addObjetosNivel(3);
-
-//		nivel1[rand()%20][rand()%20].emQueda = true;
-
-
-	}
 }
 
-
-/**
- * Verifica final do jogo considerando quedas.
- * se todos inimigos cairam ou se o jogador caiu
- */
-void verificaFimDeJogo(){
-	if(jog.tipo == 'V'){ // Após animação de queda tipo é alterado para vazio
-		partida.finalizada = true;
-		partida.venceu = false;
-	} else {
-		bool allDead = true;
-		for (it = inimigos.begin() ; it != inimigos.end(); ++it)
-			if(it->second.tipo ==  'I')
-				allDead = false;
-		 if(allDead)
-			partida.finalizada = partida.venceu = true;
-	}
-}
 
 /**
 Render scene
@@ -421,7 +427,7 @@ void mainRender() {
 	}
 	glFlush();
 	glutPostRedisplay();
-	usleep(1000);
+	usleep(0);
 }
 
 /**
