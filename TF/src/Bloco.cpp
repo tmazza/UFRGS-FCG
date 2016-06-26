@@ -34,7 +34,7 @@ void Bloco::render(){
     glPushMatrix();
     glTranslatef(this->posx,this->posy,this->posz);
 
-    if(this->tipo == 'R' || this->tipo == 'B'){
+    if((this->tipo == 'R' || this->tipo == 'B') && !this->emQueda){
       this->posy=0.801;
     }
 

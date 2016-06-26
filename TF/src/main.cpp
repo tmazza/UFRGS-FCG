@@ -152,6 +152,37 @@ void addObjetos() {
 	jog.render();
 	for (it = inimigos.begin() ; it != inimigos.end(); ++it)
 		it->second.render();
+
+	int x,y,emQueda;
+	for(int i=0;i<400;i++){
+		x = i/20; y = i%20;
+		if(nivel2[x][y].tipo == 'B' || nivel2[x][y].tipo == 'R'){
+			emQueda = true;
+			if(x > 0 ) {
+				if(nivel1[x-1][y].ativo && nivel2[x-1][y].tipo != 'R' && nivel2[x-1][y].tipo != 'B') { emQueda = false; }
+				if(y > 0)
+					if(nivel1[x-1][y-1].ativo && nivel2[x-1][y-1].tipo != 'R' && nivel2[x-1][y-1].tipo != 'B') { emQueda = false; }
+				if(y < 19)
+					if(nivel1[x-1][y+1].ativo && nivel2[x-1][y+1].tipo != 'R' && nivel2[x-1][y+1].tipo != 'B') { emQueda = false; }
+			}
+			if(x < 19) {
+				if(  nivel1[x+1][y].ativo   && nivel2[x+1][y].tipo != 'R' && nivel2[x+1][y].tipo != 'B') { emQueda = false; }
+				if(y > 0)
+					if(nivel1[x+1][y-1].ativo && nivel2[x+1][y-1].tipo != 'R' && nivel2[x+1][y-1].tipo != 'B') { emQueda = false; }
+				if(y < 19)
+					if(nivel1[x+1][y+1].ativo && nivel2[x+1][y+1].tipo != 'R' && nivel2[x+1][y+1].tipo != 'B') { emQueda = false; }
+			}
+			if(y > 0)
+				if(nivel1[x][y-1].ativo && nivel2[x][y-1].tipo != 'R' && nivel2[x][y-1].tipo != 'B') { emQueda = false; }
+			if(y < 19)
+				if(nivel1[x][y+1].ativo && nivel2[x][y+1].tipo != 'R' && nivel2[x][y+1].tipo != 'B') { emQueda = false; }
+
+			if(emQueda){
+				nivel2[x][y].emQueda = true;
+				nivel1[x][y].emQueda = true;
+			}
+		}
+	}
 }
 
 void renderFloor() {
