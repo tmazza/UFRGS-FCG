@@ -34,11 +34,20 @@ void Bloco::render(){
     glPushMatrix();
     glTranslatef(this->posx,this->posy,this->posz);
 
-    if(tipo == 'R' || this->tipo == 'B'){
+    if(this->tipo == 'R' || this->tipo == 'B'){
       this->posy=0.801;
     }
 
-    if(this->tipo == 'R' || this->tipo == 'P' || this->tipo == 'B'){
+    if(this->tipo == 'J'){
+      // glRotated(0.0, 1, 0, 0); // inclinacao
+      float ang;
+      if(this->direcao == 0 || this->direcao == 2) ang = this->direcao*90.0;
+      if(this->direcao == 1 || this->direcao == 3) ang = this->direcao*-90.0;
+  		glRotated(ang,0, 1, 0); // Direcao
+  		// glRotated(0.0,0, 0, 1);  // Rotação volante
+    }
+
+    if(this->tipo == 'R' || this->tipo == 'P' || this->tipo == 'B' || this->tipo == 'I'){
       glmDraw((GLMmodel *) this->modelo, GLM_SMOOTH | GLM_MATERIAL | GLM_TEXTURE);
     } else {
       glmDraw((GLMmodel *) this->modelo, GLM_SMOOTH);

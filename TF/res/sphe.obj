@@ -1,6 +1,6 @@
 # Wavefront OBJ file written by AC3D
 # OBJ export version 1.2 Gary Sanders
-mtllib ball.mtl
+mtllib sphe.mtl
 v 0.000000 -0.500000 0.000000
 v 0.097545 -0.490392 0.000000
 v 0.090120 -0.490392 0.037329

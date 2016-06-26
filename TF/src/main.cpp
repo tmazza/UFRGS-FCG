@@ -189,6 +189,12 @@ bool C3DObject_Load_New(const char *pszFilename, GLMmodel **model,float escala) 
     return false;
 
 	//		GLfloat sFactor[] = { 0.5, 0.5, 0.5, 1.0 };
+
+		// glRotated(inclinacao, 1, 0, 0);
+		// glRotated(rotPrincipal,0, 1, 0);
+		// glRotated(pendulo,0, 0, 1);
+		// glRotated(angChute, 1, 0, 0);
+	
     glmUnitize(*model);
   	glmScale(*model,escala); // USED TO SCALE THE OBJECT
     glmFacetNormals(*model);
@@ -266,7 +272,7 @@ void subInit(){
 
 void initModel() {
 	printf("Loading models.. \n");
-	C3DObject_Load_New("res/ball.obj",&modelSphere,0.2);
+	C3DObject_Load_New("res/sphe.obj",&modelSphere,0.2);
 	C3DObject_Load_New("res/cube.obj",&modelCube,0.2);
 	C3DObject_Load_New("res/chao.obj",&modelChao,0.2);
 	C3DObject_Load_New("res/rach.obj",&modelRach,0.1999);
