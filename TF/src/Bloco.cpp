@@ -35,7 +35,7 @@ void Bloco::render(){
     glTranslatef(this->posx,this->posy,this->posz);
 
     if(this->comTextura){
-      glmDraw((GLMmodel *) this->modelo, GLM_SMOOTH | GLM_MATERIAL | GLM_TEXTURE);
+      glmDraw((GLMmodel *) this->modelo, GLM_SMOOTH | GLM_TEXTURE);
     } else {
       glmDraw((GLMmodel *) this->modelo, GLM_SMOOTH);
     }
@@ -167,14 +167,16 @@ void Bloco::updateInimigo(int id,Bloco n1[20][20],Bloco n2[20][20],Bloco* jog,st
     novox = (novoPosX+4.2)/0.4;
     novoy = (novoPosZ+4.2)/0.4;
 
-    int random = rand() % 64;
+    int random = rand() % 256;
     if(random == 1 || random == 2
       || n1[novox][novoy].tipo == 'V' // Buraco no nivel 1
       || novoPosZ > 3.8f || novoPosZ < -4.2f || novoPosX > 3.8f || novoPosX < -4.2f // Limites do mapa
       || this->inimigoTemColisao(novoPosX,novoPosZ,n2) // Colisão com bloco
-      // || this->colisaoComOutroInimigo(id,inimigos) // TODO: colisão entre inimigos. colisaoComOutroInimigo()
     ){
       this->mudarDirecao = random == 1 ? 1 : 2;
+    } else if(this->colisaoComOutroInimigo(id,inimigos)) {
+      this->mudarDirecao = random == 1 ? 1 : 2;
+      this->andando = false;
     } else {
       this->posx = novoPosX;
       this->posz = novoPosZ;
@@ -188,7 +190,7 @@ void Bloco::updateInimigo(int id,Bloco n1[20][20],Bloco n2[20][20],Bloco* jog,st
     this->andando = true;
   }
   if(this->ativo) {
-    if(jog->pontoDentro(this->posx,this->posz,0.4))    // Testa colisão com jogador
+    if(jog->pontoDentro(this->posx,this->posz,0.36))    // Testa colisão com jogador
       jog->tipo = 'V';
   }
 }

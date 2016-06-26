@@ -118,9 +118,7 @@ void addObjetosNivel(int nivel){
 					} else if(nivel == 2) {
 						if(!cR && !cG && cB){ // J: 001 | jogador
 							 nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
-							 jog.comTextura = true;
-							 
-							 jog.instanciar('J',i, j/3, yBase,(GLMmodel *) modelCrate);
+							 jog.instanciar('J',i, j/3, yBase,(GLMmodel *) modelCube);
 						}
 						else if( cR && !cG && !cB){ // I: 100 | inimigo
 							nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelOutro1);
@@ -131,7 +129,6 @@ void addObjetosNivel(int nivel){
 						else if( cR &&  cG && !cB) nivel2[i][idx].instanciar('B',i, j/3, yBase,(GLMmodel *) modelOutro2); // B: 110 | buraco
 						else if( cR && !cG &&  cB) nivel2[i][idx].instanciar('R',i, j/3, yBase,(GLMmodel *) modelSphere); // R: 101 | rachadura
 						else nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelSphere); // V: * | vazio
-
 						nivel2[i][idx].id = count;
 						nivel2[i][idx].render();
 					} else if(nivel == 3 || nivel == 4){
