@@ -36,7 +36,9 @@ void Camera::updatePosicao(Bloco jogador){
       jogador.posx-somax,jogador.posy,jogador.posz-somaz,
       0.0,1.0,0.0);
   } else {  // Camera aerea
-    this->setViewAerea();
+    gluLookAt(0.0,9.0,-6.0,
+      0.0,0.0,0.1,
+      0.0,1.0,0.0);
   }
 }
 
@@ -44,7 +46,7 @@ void Camera::updatePosicao(Bloco jogador){
  * visualizacao aerea
  */
 void Camera::setViewAerea(){
-  gluLookAt(0.0,11.0,0.0,
+  gluLookAt(0.0,12.0,-3.0,
     0.0,0.0,0.1,
     0.0,1.0,0.0);
 }

@@ -51,7 +51,7 @@ int mouseLastY = 0;
 bool emTeste = false;
 bool spacePressed = false;
 
-float planeSize = 10.0f;
+float planeSize = 50.0f;
 int xQuads = 40;
 int zQuads = 40;
 float backgrundColor[4] = {0.0f,0.0f,0.0f,1.0f};
@@ -155,6 +155,7 @@ void addObjetos() {
 }
 
 void renderFloor() {
+
 	glPushMatrix();
     glTranslatef(-(float)planeSize/2.0f, 0.0f, -(float)planeSize/2.0f);
 
@@ -183,18 +184,9 @@ bool C3DObject_Load_New(const char *pszFilename, GLMmodel **model,float escala) 
     free(*model);
     *model = NULL;
     }
-
     *model = glmReadOBJ(aszFilename);
     if (!(*model))
     return false;
-
-	//		GLfloat sFactor[] = { 0.5, 0.5, 0.5, 1.0 };
-
-		// glRotated(inclinacao, 1, 0, 0);
-		// glRotated(rotPrincipal,0, 1, 0);
-		// glRotated(pendulo,0, 0, 1);
-		// glRotated(angChute, 1, 0, 0);
-	
     glmUnitize(*model);
   	glmScale(*model,escala); // USED TO SCALE THE OBJECT
     glmFacetNormals(*model);
