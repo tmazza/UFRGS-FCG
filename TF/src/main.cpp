@@ -57,10 +57,13 @@ int zQuads = 40;
 float backgrundColor[4] = {0.0f,0.0f,0.0f,1.0f};
 
 GLMmodel *modelSphere;
-GLMmodel *modelOutro1;
-GLMmodel *modelOutro2;
 GLMmodel *modelCube;
-GLMmodel *modelCrate;
+
+GLMmodel *modelChao;
+GLMmodel *modelRach;
+GLMmodel *modelBurr;
+GLMmodel *modelRock;
+GLMmodel *modelPlayer;
 
 int count;
 Camera cam;
@@ -112,22 +115,22 @@ void addObjetosNivel(int nivel){
 					cG = (int)data[j+1] == 255;
 					cB = (int)data[j+2] == 255;
 					if(nivel == 1){
-							if(!cR &&  cG && !cB) nivel1[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelCube);
+							if(!cR &&  cG && !cB) nivel1[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelChao);
 							else nivel1[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
 							nivel1[i][idx].render();
 					} else if(nivel == 2) {
 						if(!cR && !cG && cB){ // J: 001 | jogador
 							 nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
-							 jog.instanciar('J',i, j/3, yBase,(GLMmodel *) modelCube);
+							 jog.instanciar('J',i, j/3, yBase,(GLMmodel *) modelPlayer);
 						}
 						else if( cR && !cG && !cB){ // I: 100 | inimigo
-							nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelOutro1);
-							inimigos[qtdIni].instanciar('I',i, j/3, yBase,(GLMmodel *) modelOutro1);
+							nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelCube);
+							inimigos[qtdIni].instanciar('I',i, j/3, yBase,(GLMmodel *) modelSphere);
 							qtdIni++;
 						}
-						else if(!cR &&  cG && !cB) nivel2[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelCube); // P: 010 | parede
-						else if( cR &&  cG && !cB) nivel2[i][idx].instanciar('B',i, j/3, yBase,(GLMmodel *) modelOutro2); // B: 110 | buraco
-						else if( cR && !cG &&  cB) nivel2[i][idx].instanciar('R',i, j/3, yBase,(GLMmodel *) modelSphere); // R: 101 | rachadura
+						else if(!cR &&  cG && !cB) nivel2[i][idx].instanciar('P',i, j/3, yBase,(GLMmodel *) modelRock); // P: 010 | parede
+						else if( cR &&  cG && !cB) nivel2[i][idx].instanciar('B',i, j/3, yBase,(GLMmodel *) modelBurr); // B: 110 | buraco
+						else if( cR && !cG &&  cB) nivel2[i][idx].instanciar('R',i, j/3, yBase,(GLMmodel *) modelRach); // R: 101 | rachadura
 						else nivel2[i][idx].instanciar('V',i, j/3, yBase,(GLMmodel *) modelSphere); // V: * | vazio
 						nivel2[i][idx].id = count;
 						nivel2[i][idx].render();
@@ -171,7 +174,7 @@ void renderFloor() {
 }
 
 // Aux function to load the object using GLM and apply some functions
-bool C3DObject_Load_New(const char *pszFilename, GLMmodel **model) {
+bool C3DObject_Load_New(const char *pszFilename, GLMmodel **model,float escala) {
 		char aszFilename[256];
     strcpy(aszFilename, pszFilename);
 
@@ -187,7 +190,7 @@ bool C3DObject_Load_New(const char *pszFilename, GLMmodel **model) {
 
 	//		GLfloat sFactor[] = { 0.5, 0.5, 0.5, 1.0 };
     glmUnitize(*model);
-  	glmScale(*model,0.195); // USED TO SCALE THE OBJECT
+  	glmScale(*model,escala); // USED TO SCALE THE OBJECT
     glmFacetNormals(*model);
     glmVertexNormals(*model, 90.0);
 
@@ -263,11 +266,13 @@ void subInit(){
 
 void initModel() {
 	printf("Loading models.. \n");
-	C3DObject_Load_New("res/ball.obj",&modelSphere);
-	C3DObject_Load_New("res/porsche.obj",&modelOutro1);
-	C3DObject_Load_New("res/dolphins.obj",&modelOutro2);
-	C3DObject_Load_New("res/cube.obj",&modelCube);
-	C3DObject_Load_New("res/Crate1.obj",&modelCrate);
+	C3DObject_Load_New("res/ball.obj",&modelSphere,0.2);
+	C3DObject_Load_New("res/cube.obj",&modelCube,0.2);
+	C3DObject_Load_New("res/chao.obj",&modelChao,0.2);
+	C3DObject_Load_New("res/rach.obj",&modelRach,0.1999);
+	C3DObject_Load_New("res/burr.obj",&modelBurr,0.1999);
+	C3DObject_Load_New("res/rock.obj",&modelRock,0.2);
+	C3DObject_Load_New("res/Minion.obj",&modelPlayer,0.3);
 
 	printf("Models ok. \n \n \n");
 }
@@ -289,16 +294,16 @@ void criaRachadura(int x,int y,int direcao){
 	int i;
 	if(direcao == 3){
 		for(i=x+1;i<20;i++)
-			if(nivel1[i][y].ativo && nivel2[i][y].tipo == 'V') nivel2[i][y].metamorfisa('R',modelSphere); else break;
+			if(nivel1[i][y].ativo && nivel2[i][y].tipo == 'V') nivel2[i][y].metamorfisa('R',modelRach); else break;
 	} else if(direcao == 1){
 		for(i=x-1;i>=0;i--)
-			if(nivel1[i][y].ativo && nivel2[i][y].tipo == 'V') nivel2[i][y].metamorfisa('R',modelSphere); else break;
+			if(nivel1[i][y].ativo && nivel2[i][y].tipo == 'V') nivel2[i][y].metamorfisa('R',modelRach); else break;
 	} else if(direcao == 0) {
 		for(i=y+1;i<20;i++)
-			if(nivel1[x][i].ativo && nivel2[x][i].tipo == 'V') nivel2[x][i].metamorfisa('R',modelSphere); else break;
+			if(nivel1[x][i].ativo && nivel2[x][i].tipo == 'V') nivel2[x][i].metamorfisa('R',modelRach); else break;
 	} else if(direcao == 2){
 		for(i=y-1;i>=0;i--)
-			if(nivel1[x][i].ativo && nivel2[x][i].tipo == 'V') nivel2[x][i].metamorfisa('R',modelSphere); else break;
+			if(nivel1[x][i].ativo && nivel2[x][i].tipo == 'V') nivel2[x][i].metamorfisa('R',modelRach); else break;
 	}
 	partida.aplicaCorte(nivel1[0],nivel2[0]);
 }
@@ -479,7 +484,7 @@ void subRender(){
 	glLoadIdentity();
 
 	glClearColor(backgrundColor[0],backgrundColor[1],backgrundColor[2],backgrundColor[3]);
- 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // limpar o depth buffer
+ 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // limpar o depth buffermodelRach
  	glMatrixMode(GL_MODELVIEW);
  	glLoadIdentity();
 	cam.setViewAerea();

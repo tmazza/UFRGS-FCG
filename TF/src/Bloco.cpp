@@ -34,8 +34,12 @@ void Bloco::render(){
     glPushMatrix();
     glTranslatef(this->posx,this->posy,this->posz);
 
-    if(this->comTextura){
-      glmDraw((GLMmodel *) this->modelo, GLM_SMOOTH | GLM_TEXTURE);
+    if(tipo == 'R' || this->tipo == 'B'){
+      this->posy=0.801;
+    }
+
+    if(this->tipo == 'R' || this->tipo == 'P' || this->tipo == 'B'){
+      glmDraw((GLMmodel *) this->modelo, GLM_SMOOTH | GLM_MATERIAL | GLM_TEXTURE);
     } else {
       glmDraw((GLMmodel *) this->modelo, GLM_SMOOTH);
     }
