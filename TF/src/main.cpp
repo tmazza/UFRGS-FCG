@@ -478,14 +478,13 @@ void mainIdle() {
 
 void subRender(){
 	glutSetWindow(subWindowId);
+	glClearColor(backgrundColor[0],backgrundColor[1],backgrundColor[2],backgrundColor[3]);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	glClearColor(backgrundColor[0],backgrundColor[1],backgrundColor[2],backgrundColor[3]);
- 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // limpar o depth buffermodelRach
  	glMatrixMode(GL_MODELVIEW);
- 	glLoadIdentity();
 	cam.setViewAerea();
+
  	addObjetos();
  	renderFloor();
 
@@ -525,11 +524,9 @@ int main(int argc, char **argv) {
 
 
 	// Sub window
-	// if(!partida.finalizada){
-	// 	subWindowId = glutCreateSubWindow(mainWindowId, 0, 0,(windowWidth/4), (windowHeight/4));
-	//   glutDisplayFunc(subRender);
-	// 	subInit();
-	// }
+	subWindowId = glutCreateSubWindow(mainWindowId, 0, 0,(windowWidth/3), (windowHeight/3));
+  glutDisplayFunc(subRender);
+	subInit();
 
 	glutMainLoop();
 

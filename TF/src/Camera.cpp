@@ -46,7 +46,7 @@ void Camera::updatePosicao(Bloco jogador){
  * visualizacao aerea
  */
 void Camera::setViewAerea(){
-  gluLookAt(0.0,12.0,-3.0,
+  gluLookAt(0.0,12.0,0.0,
     0.0,0.0,0.1,
     0.0,1.0,0.0);
 }
