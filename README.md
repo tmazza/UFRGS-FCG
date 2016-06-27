@@ -36,3 +36,7 @@ Ocorre conforme determinado na especificação.
 Para controle de divisão ao criar um nova rachadura foi utilizado o algoritmo de Flood Fill. Para decidir quais as sementes iniciais de teste no caso de existir uma divisão do cenário em duas partes, foi utilizada uma matriz de inteiros representando o tipo de bloco. Percorre-se a matriz buscando a primeira posição com bloco no primeiro plano e vazia no segundo plano. A partir da primeira posição vazia encontrado o algoritmo de Flood Fill é aplicado, no processo é verificado se todas as posições da matriz foram atingidas, caso isso não tenho ocorrido existe uma separação do cenário, sendo assim busca-se o primeiro ponto não atingido e Flood Fill é novamente aplicado. Ao final as dias regiões avaliadas têm sua área comparada e a menor é removida.
 
 #### Imagens *preview*
+
+![img1](https://dl.dropboxusercontent.com/s/xg2dib2dhmntqqa/fcg_1.png?dl=0)
+![img2](https://dl.dropboxusercontent.com/s/8k63g0q79ojek8p/fcg_2.png?dl=0)
+![img3](https://dl.dropboxusercontent.com/s/b6hcgeak95ksi58/fcg_3.png?dl=0)
