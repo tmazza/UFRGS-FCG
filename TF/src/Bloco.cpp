@@ -203,7 +203,7 @@ void Bloco::updateInimigo(int id,Bloco *n1,Bloco *n2,Bloco* jog,std::map<int,Blo
     this->andando = true;
   }
   if(this->ativo) {
-    if(jog->pontoDentro(this->posx,this->posz,0.36))    // Testa colisão com jogador
+    if(jog->pontoDentro(this->posx,this->posz,0.32))    // Testa colisão com jogador
       jog->tipo = 'V';
   }
 }
