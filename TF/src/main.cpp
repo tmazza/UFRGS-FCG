@@ -349,18 +349,18 @@ void updateState() {
 			nivel2[x][y].emQueda = true;																								// em cima de um elemento válido do nível 1
 	}
 	// Jogaador
-	jog.updateJogador(nivel2,&inimigos);
+	jog.updateJogador(nivel2[0],&inimigos);
 	if(!nivel1[jog.x][jog.y].ativo) 												// TODO: unificar com função de cima
 		jog.emQueda = true;
 	// TODO: colocar isso dentro da função verificaJogador() ou update()!!!!
 	int xbur,ybur;
-	if(spacePressed && !jog.isLock() && jog.emCimaBuraco(nivel2,&xbur,&ybur)){
+	if(spacePressed && !jog.isLock() && jog.emCimaBuraco(nivel2[0],&xbur,&ybur)){
 		jog.setLock(0.03f);
 		criaRachadura(xbur,ybur,jog.direcao);
 	}
 	// Inimigos
 	for (it = inimigos.begin() ; it != inimigos.end(); ++it)
-		it->second.updateInimigo(it->first,nivel1,nivel2,&jog,inimigos);
+		it->second.updateInimigo(it->first,nivel1[0],nivel2[0],&jog,inimigos);
 
 	if(emTeste){
 		nivel1[rand()%20][rand()%20].emQueda = true;

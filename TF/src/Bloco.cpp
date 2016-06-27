@@ -83,7 +83,7 @@ void Bloco::verificaQueda(){
 /**
  * Controle movimentos e interações do jogados
  */
-void Bloco::updateJogador(Bloco n2[20][20],std::map<int,Bloco>* inimigos){
+void Bloco::updateJogador(Bloco *n2,std::map<int,Bloco>* inimigos){
 	this->update();
   float novoX = this->posx,novoZ = this->posz;
   float step = 0.01f;
@@ -154,7 +154,7 @@ void Bloco::empurraInimigo(std::map<int,Bloco>* inimigos){
 /**
  * Realiza movimentação de bloco do tipo inimigo
  */
-void Bloco::updateInimigo(int id,Bloco n1[20][20],Bloco n2[20][20],Bloco* jog,std::map<int,Bloco> inimigos){
+void Bloco::updateInimigo(int id,Bloco *n1,Bloco *n2,Bloco* jog,std::map<int,Bloco> inimigos){
   this->update();
   if(this->ativo && this->andando){
     float step = 0.004f;
@@ -182,7 +182,7 @@ void Bloco::updateInimigo(int id,Bloco n1[20][20],Bloco n2[20][20],Bloco* jog,st
 
     int random = rand() % 256;
     if(random == 1 || random == 2
-      || n1[novox][novoy].tipo == 'V' // Buraco no nivel 1
+      || (n1+20*novox+novoy)->tipo == 'V' // Buraco no nivel 1
       || novoPosZ > 3.8f || novoPosZ < -4.2f || novoPosX > 3.8f || novoPosX < -4.2f // Limites do mapa
       || this->inimigoTemColisao(novoPosX,novoPosZ,n2) // Colisão com bloco
     ){
@@ -197,7 +197,7 @@ void Bloco::updateInimigo(int id,Bloco n1[20][20],Bloco n2[20][20],Bloco* jog,st
       this->y = novoy;
     }
 
-    if(!n1[this->x][this->y].ativo)
+    if(!(n1+20*this->x+this->y)->ativo)
       this->emQueda = true;
   } else if(!this->andando){
     this->andando = true;
@@ -224,39 +224,33 @@ bool Bloco::colisaoComOutroInimigo(int id,std::map<int,Bloco> inimigos){
 /**
  * Verifica colisão com buraco
  */
-bool Bloco::emCimaBuraco(Bloco v[20][20],int *x,int *y){
-  int i,j;
-  for(i=0;i<20;i++)
-    for(j=0;j<20;j++)
-      if(v[i][j].id != this->id && v[i][j].tipo == 'B' && v[i][j].pontoDentro(this->posx,this->posz,0.2)){
-        *x = v[i][j].x;
-        *y = v[i][j].y;
-        return true;
-      }
+bool Bloco::emCimaBuraco(Bloco *n2,int *x,int *y){
+  for(int i=0;i<400;i++)
+    if((n2+i)->id != this->id && (n2+i)->tipo == 'B' && (n2+i)->pontoDentro(this->posx,this->posz,0.2)){
+      *x = (n2+i)->x;
+      *y = (n2+i)->y;
+      return true;
+    }
   return false;
 }
 
 /**
  * Verifica se existe colisão com algum elemento do cenario
  */
-bool Bloco::jogadorTemColisao(float x,float z,Bloco v[20][20]){
-  int i,j;
-  for(i=0;i<20;i++)
-    for(j=0;j<20;j++)
-      if(v[i][j].id != this->id && (v[i][j].tipo == 'P' || v[i][j].tipo == 'I') && v[i][j].pontoDentro(x,z,0.38))
-        return true;
+bool Bloco::jogadorTemColisao(float x,float z,Bloco *n2){
+  for(int i=0;i<400;i++)
+    if((n2+i)->id != this->id && ((n2+i)->tipo == 'P' || (n2+i)->tipo == 'I') && (n2+i)->pontoDentro(x,z,0.38))
+      return true;
   return false;
 }
 
 /**
  * Verifica se existe colisão com algum elemento do cenario
  */
-bool Bloco::inimigoTemColisao(float x,float z,Bloco n2[20][20]){
-  int i,j;
-  for(i=0;i<20;i++)
-    for(j=0;j<20;j++)
-      if(n2[i][j].id != this->id && (n2[i][j].tipo == 'P' || n2[i][j].tipo == 'B' || n2[i][j].tipo == 'R') && n2[i][j].pontoDentro(x,z,0.38))
-        return true;
+bool Bloco::inimigoTemColisao(float x,float z,Bloco *n2){
+  for(int i=0;i<400;i++)
+    if((n2+i)->id != this->id && ((n2+i)->tipo == 'P' || (n2+i)->tipo == 'B' || (n2+i)->tipo == 'R') && (n2+i)->pontoDentro(x,z,0.38))
+      return true;
   return false;
 }
 
