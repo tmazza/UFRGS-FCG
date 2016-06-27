@@ -539,7 +539,7 @@ int main(int argc, char **argv) {
 	/**
 	Store main window id so that glui can send it redisplay events
 	*/
-	mainWindowId = glutCreateWindow("FPS");
+	mainWindowId = glutCreateWindow("FCG Trab. Final");
 
 	glutDisplayFunc(mainRender);
 
