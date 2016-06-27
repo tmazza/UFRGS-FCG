@@ -1,6 +1,6 @@
 ### UFRGS-FCG
 
-Jogo baseado em Dig Dug II utilizando OpenGl. Foram aplicados conceitos aprendidos em aula, como posicionamento, utilização de texturas e posicionamento de câmera. 
+Jogo baseado em Dig Dug II utilizando OpenGL. Foram aplicados conceitos aprendidos em aula, como posicionamento, utilização de texturas e posicionamento de câmera. 
 
 #### Instruções de jogo
 Abaixo estão os comandos disponíveis e a funcionalidade que implementam:
